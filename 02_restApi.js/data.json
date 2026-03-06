@@ -78,5 +78,13 @@
         "email": "lmetherell9@berkeley.edu",
         "gender": "Female",
         "job_title": "Information Systems Manager"
+    },
+    {
+        "first_name": "Manpreet ",
+        "last_name": "SIngh",
+        "email": "mrmanpreet073@gmail.com",
+        "gender": "male",
+        "job_title": "Developer",
+        "id": 11
     }
 ]
