@@ -1,0 +1,82 @@
+[
+    {
+        "id": 1,
+        "first_name": "Sheryl",
+        "last_name": "Allitt",
+        "email": "sallitt0@apache.org",
+        "gender": "Female",
+        "job_title": "Engineer IV"
+    },
+    {
+        "id": 2,
+        "first_name": "Gaston",
+        "last_name": "Lindenberg",
+        "email": "glindenberg1@tuttocitta.it",
+        "gender": "Genderfluid",
+        "job_title": "Paralegal"
+    },
+    {
+        "id": 3,
+        "first_name": "Glenn",
+        "last_name": "Churm",
+        "email": "gchurm2@scribd.com",
+        "gender": "Genderfluid",
+        "job_title": "Geologist I"
+    },
+    {
+        "id": 4,
+        "first_name": "Gradeigh",
+        "last_name": "Tolliday",
+        "email": "gtolliday3@ifeng.com",
+        "gender": "Male",
+        "job_title": "Editor"
+    },
+    {
+        "id": 5,
+        "first_name": "Kala",
+        "last_name": "Deville",
+        "email": "kdeville4@hud.gov",
+        "gender": "Female",
+        "job_title": "Quality Control Specialist"
+    },
+    {
+        "id": 6,
+        "first_name": "Chandler",
+        "last_name": "Stockwell",
+        "email": "cstockwell5@lulu.com",
+        "gender": "Male",
+        "job_title": "Biostatistician I"
+    },
+    {
+        "id": 7,
+        "first_name": "Gaelan",
+        "last_name": "Stilgoe",
+        "email": "gstilgoe6@indiegogo.com",
+        "gender": "Male",
+        "job_title": "Senior Sales Associate"
+    },
+    {
+        "id": 8,
+        "first_name": "Paulie",
+        "last_name": "Middell",
+        "email": "pmiddell7@opera.com",
+        "gender": "Male",
+        "job_title": "Legal Assistant"
+    },
+    {
+        "id": 9,
+        "first_name": "Cara",
+        "last_name": "Habbershon",
+        "email": "chabbershon8@bizjournals.com",
+        "gender": "Female",
+        "job_title": "Food Chemist"
+    },
+    {
+        "id": 10,
+        "first_name": "Lyndy",
+        "last_name": "Metherell",
+        "email": "lmetherell9@berkeley.edu",
+        "gender": "Female",
+        "job_title": "Information Systems Manager"
+    }
+]
