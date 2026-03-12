@@ -3,6 +3,9 @@ import TodoController from './Controller.js'
 
 const router = Router()
 const controller = new TodoController()
+//        |
+//    New object bnake current object se call  
+
 
 // bind(controller) ensures that inside the controller methods
 // the `this` keyword correctly refers to the controller instance.

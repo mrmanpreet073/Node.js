@@ -1,3 +1,5 @@
+// Server
+
 import http from 'http'
 import { env } from './env.js'
 import {createServerApplication} from './app/index.js'

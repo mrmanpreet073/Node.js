@@ -1,8 +1,14 @@
+// Controller file
+
 import type { Request, Response } from 'express'
 import { todoValidationSchema, type Todo } from "../Validation/todo.schema.js"
 
 class TodoController {
+    //            .> Type
+    //            |
     private _db: Todo[]
+//  -------------------
+    // It declares a private property named _db whose type is an array of Todo objects.
 
     constructor() {
         this._db = []
@@ -14,16 +20,16 @@ class TodoController {
         return res.json({ todos })
     }
 
-    // public async handleInsertTodo(req: Request, res: Response) {
-    //     try {
-    //         const unvalidated = req.body
-    //         const validationResult = await todoValidationSchema.parseAsync(unvalidated)
-    //         this._db.push(validationResult)
-    //         return res.status(201).json({ todo: validationResult })
-    //     } catch (error) {
-    //         return res.status(500).json({ error })
-    //     }
-    // }
+    public async handleInsertTodo(req: Request, res: Response) {
+        try {
+            const unvalidated = req.body
+            const validationResult = await todoValidationSchema.parseAsync(unvalidated)
+            this._db.push(validationResult)
+            return res.status(201).json({ todo: validationResult })
+        } catch (error) {
+            return res.status(500).json({ error })
+        }
+    }
 }
 
 export default TodoController
