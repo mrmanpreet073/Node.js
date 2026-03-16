@@ -2,6 +2,8 @@ const express = require('express');
 
 
 function block_1_basicServer() {
+
+    // Backend
     return new Promise((resolev) => {
         const app = express()
         app.use(express.json()) // -> Understand json 
@@ -41,19 +43,43 @@ function block_1_basicServer() {
                 ststus: 'created',
                 order
             })
-        }) 
+        })
 
         const server = app.listen(0, async () => {
             const PORT = server.address().port;
             const base = `http://127.0.0.1:${PORT}`
 
             try {
+                // frontend
 
                 const menures = await fetch(`${base}/menu`);
-                const menudata = menures.json()
+                const menudata = await menures.json() // read the request body 
                 //.json() is a method of the Response object returned by the Fetch API.
                 //read the response body and convert JSON data into a JavaScript object.
+
                 console.log('Menu Result : ', JSON.stringify(menudata));
+
+                console.log("++++++++++++++++++++++++++++++++++++++++++")
+
+
+                const searchres = await fetch(`${base}/search?q=biryani&limit=5`);
+                const searchData = await searchres.json()
+             //why use await here ----- ---------------- 
+                //                       searchres.json()  returns a Promise, not the actual data.
+                //                                            the browser must:
+                //                                            Read the body stream
+                //                                            Convert stream → text
+                //                                            Run JSON.parse()
+                //                                            Return the result
+                //                                            Because reading the stream takes time, it is asynchronous.
+                //                                            So .json() returns a Promise. that's why using await 
+                //     
+                console.log('Menu Result : ', JSON.stringify(searchData));
+
+                console.log("++++++++++++++++++++++++++++++++++++++++++")
+
+                
+
 
             } catch (error) {
 
