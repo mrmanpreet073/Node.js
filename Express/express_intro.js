@@ -4,7 +4,7 @@ const express = require('express');
 function block_1_basicServer() {
 
     // Backend
-    return new Promise((resolev) => {
+    return new Promise((resolve) => {
         const app = express()
         app.use(express.json()) // -> Understand json 
         //      . Request arrives
@@ -105,9 +105,11 @@ function block_1_basicServer() {
                 console.log('error:', error);
 
             }
-            server.close(() => {
+            server.close(() => {   //stops the HTTP server from accepting new connections and shuts it down gracefully.
+ //         -------------
                 console.log('Block 1 served ');
-                resolev()
+                resolve()  //signals that the Promise has successfully completed and allows the awaiting code to continue execution.
+            // -----------
             })
         })
 
@@ -118,8 +120,8 @@ function block_1_basicServer() {
 
 async function main() {
 
-    await block_1_basicServer()
-
+    await block_1_basicServer()  //Because of await, JavaScript waits until the Promise resolves.
+// -------
 
     process.exit(0)
     // ---------------  0	Successful execution
