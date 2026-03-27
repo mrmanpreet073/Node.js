@@ -13,24 +13,36 @@ async function generateShortUlr(req, res) {
         redirectUrl: body.url,
         visitHistory: []
     })
-
-    return res.json({ id: shortId })
+    return res.render('home', {
+        id: shortId
+    })
+    // return res.json({ id: shortId })
 
 }
 async function getAnalasys(req, res) {
     const shortId = req.params.shortId;
     const result = await URL.findOne({ shortId });
-if(result)
-{
-     return res.json({
-        totalClicks: result.visitHistory.length,
-        Analytics: result.visitHistory
+    if (result) {
+        return res.json({
+            totalClicks: result.visitHistory.length,
+            Analytics: result.visitHistory
+        })
+    }
+    else {
+        console.log('error in analysis');
+
+    }
+
+}
+
+async function updateandredirect(req, res) {
+
+    const shortId = req.params.shortId;
+    const entry = await URL.findOneAndUpdate({ shortId }, {
+        $push: {
+            visitHistory: { timeStamp: Date.now() }
+        }
     })
+    res.redirect(entry.redirectUrl)
 }
-else{
-    console.log('error in analysis');
-    
-}
-   
-}
-export { generateShortUlr, getAnalasys };
+export { generateShortUlr, getAnalasys ,updateandredirect};
