@@ -3,22 +3,39 @@ import URL from '../models/url.js';
 
 async function generateShortUlr(req, res) {
 
-    const body = req.body;
-    if (!body) return res.status(400).json({ error: "url required" })
+    const { url } = req.body;
+    const urls = await URL.find({})
+    
+    if (!url) {
+        return res.status(400).json({ error: "URL required" });
+    }
+
+    //  if url already exists
+    const existingUrl = await URL.findOne({ redirectUrl: url });
+
+    if (existingUrl) {
+        return res.render("home", {
+            id: existingUrl.shortId,
+            allUrls: urls
+        });
+    }
 
     const shortId = nanoid(8);
 
     await URL.create({
         shortId: shortId,
-        redirectUrl: body.url,
+        redirectUrl: url,
         visitHistory: []
-    })
-    return res.render('home', {
-        id: shortId
-    })
-    // return res.json({ id: shortId })
+    });
 
+    // 4. Fetch the updated list after creation
+
+    return res.render("home", {
+        id: shortId,
+        allUrls: urls // Pass the updated list
+    });
 }
+
 async function getAnalasys(req, res) {
     const shortId = req.params.shortId;
     const result = await URL.findOne({ shortId });
@@ -45,4 +62,4 @@ async function updateandredirect(req, res) {
     })
     res.redirect(entry.redirectUrl)
 }
-export { generateShortUlr, getAnalasys ,updateandredirect};
+export { generateShortUlr, getAnalasys, updateandredirect };
