@@ -10,4 +10,9 @@ router.get('/' ,async  (req,res)=>{
         allUrls:urls
     })
 })
+router.get('/signup' ,async  (req,res)=>{
+
+    const urls =await  URL.find({})
+    return res.render('signup',)
+})
 export default router
