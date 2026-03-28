@@ -15,4 +15,9 @@ router.get('/signup' ,async  (req,res)=>{
     const urls =await  URL.find({})
     return res.render('signup',)
 })
+router.get('/login' ,async  (req,res)=>{
+
+    const urls =await  URL.find({})
+    return res.render('login',)
+})
 export default router
