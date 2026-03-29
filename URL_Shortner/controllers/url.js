@@ -4,16 +4,21 @@ import URL from '../models/url.js';
 async function generateShortUlr(req, res) {
 
     const { url } = req.body;
-    const urls = await URL.find({})
-    
+
     if (!url) {
         return res.status(400).json({ error: "URL required" });
     }
 
-    //  if url already exists
-    const existingUrl = await URL.findOne({ redirectUrl: url });
+    // check if url already exists for this user
+    const existingUrl = await URL.findOne({
+        redirectUrl: url,
+        createdBy: req.user._id
+    });
 
     if (existingUrl) {
+
+        const urls = await URL.find({ createdBy: req.user._id });
+
         return res.render("home", {
             id: existingUrl.shortId,
             allUrls: urls
@@ -23,16 +28,17 @@ async function generateShortUlr(req, res) {
     const shortId = nanoid(8);
 
     await URL.create({
-        shortId: shortId,
+        shortId,
         redirectUrl: url,
-        visitHistory: []
+        visitHistory: [],
+        createdBy: req.user._id
     });
 
-    // 4. Fetch the updated list after creation
+    const urls = await URL.find({ createdBy: req.user._id });
 
     return res.render("home", {
         id: shortId,
-        allUrls: urls // Pass the updated list
+        allUrls: urls
     });
 }
 

@@ -5,25 +5,31 @@ import URL from './models/url.js';
 import path from 'path'
 import staticRouter from './routes/staticRouter.js';
 import userRouter from './routes/user.js';
+import cookieparser from 'cookie-parser'
+import { redirectToLoggedInUserOnly } from './middleware/auth.js';
 
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({extended:false}))
+app.use(cookieparser());
+app.use(express.urlencoded({ extended: false }))
 const PORT = 8000;
 
 
-//ROUTES
-app.use('/url', urlRoute);
-app.use('/',staticRouter);
-app.use('/user',userRouter);
-
 
 // setting up Ejs 
-app.set('view engine','ejs')  // This tells Express: “When I render pages, use the EJS template engine.”
+app.set('view engine', 'ejs')  // This tells Express: “When I render pages, use the EJS template engine.”
 // So when you write: res.render("home")
 // Express automatically looks for: home.ejs
-app.set('views',path.resolve('./views'))  //This tells Express:  “My template files are inside the views folder.”
+app.set('views', path.resolve('./views'))  //This tells Express:  “My template files are inside the views folder.”
+
+
+//ROUTES
+app.use('/url', redirectToLoggedInUserOnly, urlRoute);
+app.use('/', staticRouter);
+app.use('/user', userRouter);
+
+
 
 
 
@@ -33,7 +39,7 @@ connection('mongodb://127.0.0.1:27017/short-url')
     .catch((e) => console.log('Error', e))
 
 
-app.get('url/:shortId', async (req, res) => {
+app.get('/url/:shortId', async (req, res) => {
 
     const shortId = req.params.shortId;
     const entry = await URL.findOneAndUpdate({ shortId }, {
