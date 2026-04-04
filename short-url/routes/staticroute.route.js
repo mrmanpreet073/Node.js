@@ -9,7 +9,8 @@ const router = express.Router();
 router.get('/',redirectToLoggedInUserOnly,async(req,res) => {
 const urls =await URL.find({ createdBy: req.user._id })
     res.render('home',{
-        allUrls:urls
+        allUrls:urls,
+        user: req.user
     })
 })
 router.get('/login',async(req,res) => {

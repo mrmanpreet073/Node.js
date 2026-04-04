@@ -22,7 +22,8 @@ async function generateUrl(req, res) {
         const allUrls = await URL.find({ createdBy: req.user._id });
         return res.render('home', {
             id: existingUrl.shortId,
-            allUrls: allUrls
+            allUrls: allUrls,
+            user: req.user // Ensure user data is passed for rendering
         });
     }
 
@@ -41,7 +42,8 @@ async function generateUrl(req, res) {
 
     return res.render('home', {
         id: shortId,
-        allUrls: allUrls // Now contains the new URL!
+        allUrls: allUrls,
+        user: req.user // Now contains the new URL!
     });
 }
 

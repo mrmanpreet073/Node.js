@@ -112,6 +112,73 @@
 </head>
 
 <body>
+ <nav style="
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 12px 24px; 
+    background-color: #0f172a; 
+    border-bottom: 1px solid #1e293b; 
+    font-family: sans-serif;
+        gap: 26px;
+">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="
+            background: #3b82f6; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        ">S</div>
+        <span style="color: #ffffff; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px;">ShortURL</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 34px;">
+        <% if (locals.user) { %>
+            <div style="display: flex; align-items: center; gap: 32px;">
+                <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User</span>
+                    <span style="font-size: 14px; color: #e2e8f0; font-weight: 600;"><%= user.username %></span>
+                </div>
+                <div style="
+                    width: 40px; 
+                    height: 40px; 
+                    background: #1e293b; 
+                    border: 1px solid #334155; 
+                    border-radius: 50%; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    color: #3b82f6; 
+                    font-weight: bold;
+                    font-size: 18px;
+                ">
+                    <%= user.username.charAt(0).toUpperCase() %>
+                </div>
+            </div>
+            
+            <a href="/user/logout" style="
+                background-color: rgba(239, 68, 68, 0.1); 
+                color: #f87171; 
+                padding: 10px 18px; 
+                border-radius: 8px; 
+                border: 1px solid rgba(239, 68, 68, 0.3);
+                text-decoration: none; 
+                font-size: 14px; 
+                font-weight: 600;
+                transition: 0.3s;
+            " onmouseover="this.style.backgroundColor='#ef4444'; this.style.color='white';" 
+               onmouseout="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'; this.style.color='#f87171';">
+                Logout
+            </a>
+        <% } %>
+    </div>
+</nav>
     <h1>URL Shortener</h1>
 
     <div class="container">
