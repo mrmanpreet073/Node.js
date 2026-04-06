@@ -1,6 +1,7 @@
+import { ref } from "process";
 import { sendVerificationEmail } from "../../common/config/email.js";
 import apiError from "../../common/utils/apiError.js"
-import { generateResetToken } from "../../common/utils/jwt.utils.js";
+import { generateAccessToken, generateRefreshToken, generateResetToken } from "../../common/utils/jwt.utils.js";
 import User from "./auth.modals.js"
 import crypto from 'crypto'
 
@@ -58,14 +59,35 @@ const verifyEmail = async (token) => {
         }
     }
 
-    await User.findByIdAndUpdate(user._id,{
-        $set:{ isVerified:true},
-        $unset:{ verificationToken:1},
+    await User.findByIdAndUpdate(user._id, {
+        $set: { isVerified: true },
+        $unset: { verificationToken: 1 },
     })
 }
 
-const login = ({email,password} ) => {
-    
+// Login Service --------------------------
+const login = async ({ email, password }) => {
+    const user = await User.findOne({ email }).select('+password');
+    console.log('user in login with email', user);
+
+    if (!user) throw apiError.unauthorized("Invalid Email or Password")
+
+    const isMatch = await user.comparePassword(password)
+    if (!isMatch) throw apiError.unauthorized("invalid Email or Password ")
+
+    const accessToken = generateAccessToken(user._id, user.role)
+    const refreshToken = generateRefreshToken(user._id)
+
+    user.refreshToken = hash(refreshToken);
+    await user.save({ validateBeforeSave: false });
+
+    const userObj = user.toObject()
+    delete userObj.password;
+    delete userObj.refreshToken;
+
+    return { user: userObj, accessToken, refreshToken }
+
+
 }
 
-export { register ,verifyEmail}
+export { register, verifyEmail,login }

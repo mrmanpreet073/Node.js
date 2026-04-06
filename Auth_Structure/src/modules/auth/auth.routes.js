@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.post('/',validate(registerDto),controller.register);
 router.get("/verify-email/:token", controller.verifyEmail);
+router.get("/login", controller.login);
 
 
 

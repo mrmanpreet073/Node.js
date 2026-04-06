@@ -8,6 +8,9 @@ class apiError extends Error {
   static badRequest(message = "Bad request") {
     return new apiError(400, message);
   }
+  static unauthorized(message = "Unauthorized") {
+    return new apiError(401, message);
+  }
   static conflict(message = "Conflict") {
     return new apiError(409, message);
   }
