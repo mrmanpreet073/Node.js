@@ -1,4 +1,4 @@
-import express, { urlencoded } from 'express';
+import express from 'express';
 import cookieparser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes.js';
 
@@ -10,7 +10,7 @@ app.use(cookieparser())
 app.use(express.urlencoded({extended:true}))
 
 
-app.use('/api/auth',authRouter)
+app.use('/api/auth',authRouter) 
 
 // -----  -> all() means the route will match all HTTP methods:   So this handler works for any request type.
 app.all("{*path}", (req, res) => {

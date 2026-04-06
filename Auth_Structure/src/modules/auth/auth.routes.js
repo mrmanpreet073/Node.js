@@ -1,5 +1,7 @@
 import express from 'express'
-import registerDto from './dto/register.dto';
+import registerDto from './dto/register.dto.js';
+import * as  controller from './auth.controller.js'
+import validate from '../../common/middleware/validateDto.js';
 
 
 const router = express.Router();
