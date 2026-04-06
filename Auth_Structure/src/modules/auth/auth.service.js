@@ -10,7 +10,7 @@ import crypto from 'crypto'
 const hash = (token) => crypto.createHash("sha256").update(token).digest("hex");
 
 
-//  Register the User
+//  Register the User --------------------------------------
 const register = async ({ name, email, password, role }) => {
     const exists = await User.findOne({ email })
     if (exists) {
@@ -40,7 +40,7 @@ const register = async ({ name, email, password, role }) => {
 
 }
 
-// verify email token and set isVerified to true
+// verify email token and set isVerified to true-------------------------------
 
 const verifyEmail = async (token) => {
     const trimmedToken = token.trim();
@@ -62,6 +62,10 @@ const verifyEmail = async (token) => {
         $set:{ isVerified:true},
         $unset:{ verificationToken:1},
     })
+}
+
+const login = ({email,password} ) => {
+    
 }
 
 export { register ,verifyEmail}
