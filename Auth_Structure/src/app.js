@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieparser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes.js';
+import apiError from './common/utils/apiError.js';
 
 
 
@@ -15,7 +16,7 @@ app.use('/api/auth',authRouter)
 // -----  -> all() means the route will match all HTTP methods:   So this handler works for any request type.
 app.all("{*path}", (req, res) => {
 //      --------  -> This is a wildcard route pattern.It matches any path that was not matched by earlier routes. 
-  throw ApiError.notFound(`Route ${req.originalUrl} not found`);
+  throw apiError.NotFound(`Route ${req.originalUrl} not found`);
   //                              -----------------  -> Contains the exact URL requested by the client.
 });
 // Why this code is used

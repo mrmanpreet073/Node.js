@@ -9,7 +9,10 @@ class apiError extends Error {
     return new apiError(400, message);
   }
   static conflict(message = "Conflict") {
-    return new ApiError(409, message);
+    return new apiError(409, message);
+  }
+  static NotFound(message = "Not Found") {
+    return new apiError(409, message);
   }
 
 }
