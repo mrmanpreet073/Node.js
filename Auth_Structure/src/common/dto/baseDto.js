@@ -10,7 +10,7 @@ class baseDto {
             stripUnknown: true
         })
         if (error) {
-            const errors = error.map((error) => {
+            const errors = error.details.map((error) => {
                 return error.message
             })
             return { errors, value: null }
@@ -21,3 +21,21 @@ class baseDto {
 }
 
 export default baseDto
+
+
+//             {
+//   error: {
+//     details: [
+//       {
+//         message: '"email" must be a valid email',
+//         path: ['email'],
+//         type: 'string.email'
+//       },
+//       {
+//         message: '"password" length must be at least 6 characters long',
+//         path: ['password'],
+//         type: 'string.min'
+//       }
+//     ]
+//   }
+// }

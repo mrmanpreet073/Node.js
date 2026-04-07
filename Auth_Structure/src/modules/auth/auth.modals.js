@@ -43,15 +43,16 @@ const userSchema = new mongoose.Schema(
 
 
 // Hash the password before saving 
-userSchema.pre('save', async () => {
+// Hash password before saving
+userSchema.pre("save", async function () {
     if (!this.isModified("password")) return;
-    this.password = await bcrypt(this.password, 12)
+    this.password = await bcrypt.hash(this.password, 12);  //Salt rounds is a parameter used by bcrypt that controls how many times the hashing algorithm runs to generate the password hash.
+    //                                                ----
+});
 
-})
-userSchema.methods.comparePassword = async (enteredPassword) => {
-    return await bcrypt.compare(enteredPassword,this.password)
-}
-
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
 
 const User = mongoose.model('User', userSchema);
 
