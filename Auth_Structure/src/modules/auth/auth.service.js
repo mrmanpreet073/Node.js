@@ -100,8 +100,8 @@ const login = async ({ email, password }) => {
 
 }
 
-const logout = async (params) => {
-
+const logout = async (userId) => {
+    await User.findByIdAndUpdate(userId,{refreshToken:null})
 }
 
 const refreshToken = async (token) => {
@@ -143,4 +143,4 @@ const refreshToken = async (token) => {
     };
 }
 
-export { register, verifyEmail, login, refreshToken }
+export { register, verifyEmail, login, refreshToken ,logout}

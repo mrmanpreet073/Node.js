@@ -42,7 +42,13 @@ const refresh = async (req, res) => {
   });
 
   ApiResponse.ok(res, 'token Refresh Successfully', { accessToken })
-
 }
 
-export { register, verifyEmail, login, refresh }
+const logout = async (req,res ) => {
+  await authService.logout(req.user.id);
+  res.clearCookie("refreshToken");
+  ApiResponse.ok(res, "Logged out successfully");  
+}
+
+
+export { register, verifyEmail, login, refresh ,logout}
