@@ -1,5 +1,5 @@
 import { ref } from "process";
-import { sendVerificationEmail } from "../../common/config/email.js";
+import { sendResetPasswordEmail, sendVerificationEmail } from "../../common/config/email.js";
 import apiError from "../../common/utils/apiError.js"
 import { generateAccessToken, generateRefreshToken, generateResetToken, verifyReferhToken } from "../../common/utils/jwt.utils.js";
 import User from "./auth.modals.js"
@@ -25,6 +25,7 @@ const register = async (userData) => {
     const { rawToken, hashedToken } = generateResetToken();
 
     // 3. Create User
+    console.time("DB_Register_Time"); // Start timer
     const user = await User.create({
         name,
         email,
@@ -32,7 +33,7 @@ const register = async (userData) => {
         role,
         verificationToken: hashedToken
     });
-
+    console.timeEnd("DB_Register_Time"); // End timer and log result
     // 4. Send Email (Try/Catch is good here)
     try {
         await sendVerificationEmail(email, rawToken);
@@ -53,32 +54,28 @@ const register = async (userData) => {
 
 // verify email token and set isVerified to true-------------------------------
 
+// Verify Email
 const verifyEmail = async (token) => {
-    const trimmedToken = token.trim();
-    const hashedToken = hash(trimmedToken);
+    if (!token) throw apiError.badRequest('Token is required');
 
-    if (!trimmedToken) {
-        throw apiError.badRequest('Invalid or Expired Varification Token ')
-    }
+    const hashedToken = hash(token.trim());
 
-    const user = await User.findOne({ verificationToken: hashedToken }).select('+verificationToken')
+    // Find user with the hashed token
+    const user = await User.findOne({ verificationToken: hashedToken });
+
     if (!user) {
-        const user = await User.findOne({ verificationToken: trimmedToken }).select('+verificationToken')
-        if (!user) {
-            throw apiError.badRequest('Invalid or Expired Varification Token ')
-        }
+        throw apiError.badRequest('Invalid or Expired Verification Token');
     }
-
-    await User.findByIdAndUpdate(user._id, {
-        $set: { isVerified: true },
-        $unset: { verificationToken: 1 },
-    })
-}
+    // Use the user instance we just found to update
+    user.isVerified = true;
+    user.verificationToken = undefined; // $unset equivalent in save()
+    await user.save({ validateBeforeSave: false });
+};
 
 // Login Service --------------------------
 const login = async ({ email, password }) => {
     const user = await User.findOne({ email }).select('+password');
-    console.log('user in login with email', user);
+    // console.log('user in login with email', user);
 
     if (!user) throw apiError.unauthorized("Invalid Email or Password")
 
@@ -101,7 +98,7 @@ const login = async ({ email, password }) => {
 }
 
 const logout = async (userId) => {
-    await User.findByIdAndUpdate(userId,{refreshToken:null})
+    await User.findByIdAndUpdate(userId, { refreshToken: null })
 }
 
 const refreshToken = async (token) => {
@@ -113,7 +110,7 @@ const refreshToken = async (token) => {
     //verify the refreshtoken 
     try {
         // 1. Verify the token (this throws if expired/invalid)
-         decoded = verifyReferhToken(token);
+        decoded = verifyReferhToken(token);
         console.log('decoded refresh token payload', decoded);
 
     } catch (err) {
@@ -143,4 +140,65 @@ const refreshToken = async (token) => {
     };
 }
 
-export { register, verifyEmail, login, refreshToken ,logout}
+// Forgot Password Service --------------------------
+const forgotPassword = async (email) => {
+    const user = await User.findOne({ email });
+    if (!user) throw apiError.notFound('No account with this email'); // Check casing
+
+    const { rawToken, hashedToken } = generateResetToken();
+
+    // 1. Prepare the data, but don't save yet!
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
+
+    try {
+        // 2. Try to send the email first
+        await sendResetPasswordEmail(email, rawToken);
+
+        // 3. ONLY save to DB if the email sent successfully
+        await user.save();
+
+    } catch (error) {
+        // 4. Clean up if email fails
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        // Don't save here, just log it and re-throw so the controller knows
+        console.error('Email failed:', error.message);
+        throw apiError.internal('Could not send reset email. Please try again later.');
+    }
+};
+
+// Reset Password service -------------------------------------
+const resetPassword = async (token, newPassword) => {
+    const hashedToken = hash(token);
+
+
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { $gt: Date.now() }
+    }).select('+resetPasswordToken +resetPasswordExpires');
+
+    // If no user found, the token is either wrong or expired
+    if (!user) {
+        throw apiError.badRequest('Invalid or expired reset token');
+    }
+
+    // Update the password 
+    // Note: If you have a 'pre-save' hook to hash passwords, 
+    // don't hash it here or it will be double-hashed!
+    user.password = newPassword;
+
+    // 4. Clear the reset fields so the token can't be used again
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+};
+const getMe = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw apiError.NotFound("User not found");
+  return user;
+};
+
+
+export { register,getMe, verifyEmail, login, refreshToken, logout, forgotPassword, resetPassword }

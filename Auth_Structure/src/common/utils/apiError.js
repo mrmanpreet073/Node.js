@@ -15,9 +15,11 @@ class apiError extends Error {
     return new apiError(409, message);
   }
   static NotFound(message = "Not Found") {
-    return new apiError(409, message);
+    return new apiError(404, message);
   }
-
+  static internal(message = "Internal server error") {
+    return new apiError(500, message);
+  }
 }
 
 export default apiError

@@ -44,11 +44,30 @@ const refresh = async (req, res) => {
   ApiResponse.ok(res, 'token Refresh Successfully', { accessToken })
 }
 
-const logout = async (req,res ) => {
+const logout = async (req, res) => {
   await authService.logout(req.user.id);
   res.clearCookie("refreshToken");
-  ApiResponse.ok(res, "Logged out successfully");  
+  ApiResponse.ok(res, "Logged out successfully");
+}
+const forgotPassword = async (req, res) => {
+  // console.log(req.body.email);
+  await authService.forgotPassword(req.body.email);
+  ApiResponse.ok(res, "Password reset Email Sent")
 }
 
+const resetPassword = async (req, res) => {
+  const rawToken = req.params.token;
+  await authService.resetPassword(rawToken, req.body.password);
+  ApiResponse.ok(res, 'password reset Successfull')
+}
 
-export { register, verifyEmail, login, refresh ,logout}
+const getMe = async (req, res, next) => {
+  try {
+    const user = await authService.getMe(req.user.id);
+    ApiResponse.ok(res, "User profile", user);
+  } catch (error) {
+    // Service ka 'throw' kiya hua error yahan aayega
+    next(error);
+  }
+};
+export { register, getMe, verifyEmail, login, refresh, logout, forgotPassword, resetPassword }

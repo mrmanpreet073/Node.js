@@ -28,4 +28,13 @@ const sendVerificationEmail = async (email, token) => {
   );
 };
 
-export{sendVerificationEmail}
+const sendResetPasswordEmail = async (email,token) => {
+  const url =`${process.env.CLIENT_URL}/api/auth/reset-password/${token}`;
+    await sendEmail(
+    email,
+    "Reset Password",
+    `<h2>Welcome!</h2><p>Click <a href="${url}">here</a> to Reset your password.</p>`,
+  );
+}
+
+export{sendVerificationEmail,sendResetPasswordEmail}
