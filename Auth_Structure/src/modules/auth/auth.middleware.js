@@ -41,4 +41,16 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-export {authenticate}
+// Higher-order function — returns middleware configured with allowed roles
+const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {  // here we compare the role passed in route with the user role
+      throw apiError.forbidden(
+        "You do not have permission to perform this action",
+      );
+    }
+    next();
+  };
+};
+
+export {authenticate,authorize}
