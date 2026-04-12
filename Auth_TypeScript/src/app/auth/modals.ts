@@ -1,6 +1,6 @@
 import z from 'zod'
 
-const signupModel  = z.object({
+ export const signupModel  = z.object({
     firstName: z.string().min(2),
     lastName: z.string().nullable().optional(),
     email: z.email(),
