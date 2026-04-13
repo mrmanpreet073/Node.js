@@ -4,7 +4,8 @@ const authenticationController = new AuthenticationController()
 
 const authRouter = express.Router();
 
-authRouter.post('/signup',authenticationController.handleSignUp.bind(authenticationController))
+authRouter.post('/signup',authenticationController.handleSignUp)
+authRouter.post('/signin',authenticationController.handleSignIn)
 
 
 
