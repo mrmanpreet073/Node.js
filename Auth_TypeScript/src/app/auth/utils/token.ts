@@ -5,19 +5,29 @@ export interface userPayload {
     email: string
 }
 
-const SECRET = "SECRET "
+const accessSECRET = "accessSECRET"
+const refreshSECRET = "refreshSECRET"
 
-export function generateToken(payload: userPayload) {
-    const token = jwt.sign(payload, SECRET,{ expiresIn: '7d' })
-    return token
+export function generateAccessToken(payload: userPayload) {
+    return jwt.sign(payload, accessSECRET, { expiresIn: '5m' })
 }
 
-export function verifyToken(token: string) {
+export function generateRefreshToken(payload: userPayload) {
+    return jwt.sign(payload, refreshSECRET, { expiresIn: '7d' })
+}
+
+export function verifyAccessToken(token: string) {
     try {
-        const payload = jwt.verify(token, SECRET) as userPayload
-        return payload
+        return jwt.verify(token, accessSECRET) as userPayload
+    } catch {
+        return null
     }
-    catch (err) {
+}
+
+export function verifyRefreshToken(token: string) {
+    try {
+        return jwt.verify(token, refreshSECRET) as userPayload
+    } catch {
         return null
     }
 }

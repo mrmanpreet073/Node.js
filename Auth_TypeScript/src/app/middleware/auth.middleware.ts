@@ -1,5 +1,5 @@
 import type { NextFunction, Response, Request } from "express"
-import { verifyToken } from "../auth/utils/token.js";
+import { verifyAccessToken } from "../auth/utils/token.js";
 
 
 
@@ -15,7 +15,7 @@ export const authenticationMiddleware = () => {
 
         if (!token) return res.status(400).json({ error: "authorization header must start with Bearer and followed by token" })
 
-        const decodedValues = verifyToken(token);
+        const decodedValues = verifyAccessToken(token);
         if (!decodedValues) {
             return res.status(401).json({ error: 'Invalid or expired token' })
         }
