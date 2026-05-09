@@ -1,0 +1,63 @@
+import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
+
+
+const userSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: [true, "Name is required"],
+            trim: true,
+            minlength: 2,
+            maxlength: 50,
+        },
+        email: {
+            type: String,
+            required: [true, "Email is required"],
+            unique: true,
+            lowercase: true,
+            trim: true,
+        },
+        password: {
+            type: String,
+            required: [true, "Password is required"],
+            minlength: 8,
+            select: false,
+        },
+        role: {
+            type: String,
+            enum: ["customer", "seller", "admin", "support"],
+            default: "customer",
+        },
+        isVerified: {
+            type: Boolean,
+            default: false,
+        },
+        avatar: {
+            type: String,
+            default: false
+        },
+        verificationToken: { type: String, select: false },
+        refreshToken: { type: String, select: false },
+        resetPasswordToken: { type: String, select: false },
+        resetPasswordExpires: { type: Date, select: false },
+    },
+    { timestamps: true },
+);
+
+
+// Hash the password before saving 
+// Hash password before saving
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+    this.password = await bcrypt.hash(this.password, 12);  //Salt rounds is a parameter used by bcrypt that controls how many times the hashing algorithm runs to generate the password hash.
+    //                                                ----
+});
+
+userSchema.methods.comparePassword = async function (candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+
+export default User
