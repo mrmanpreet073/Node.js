@@ -2,7 +2,7 @@ import express from 'express';
 import cookieparser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes.js';
 import apiError from './common/utils/apiError.js';
-
+import ownerRouter from './modules/IPL/routes/owner.routes.js';
 
 
 const app = express();
@@ -12,6 +12,7 @@ app.use(express.urlencoded({extended:true}))
 
 
 app.use('/api/auth',authRouter) 
+app.use('/api/owner',ownerRouter) 
 
 
 

@@ -17,5 +17,6 @@ const ownerSchema = new mongoose.Schema({
     }
 },{timestamps:true});
 
+ownerSchema.index({name:1 , company:1} , {unique:true});
 
 export default mongoose.model("Owner", ownerSchema);

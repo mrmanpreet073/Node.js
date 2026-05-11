@@ -25,5 +25,7 @@ const playerSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+playerSchema.index({name:1 , role:1, teamId:1} , {unique:true});
+
 
 export default mongoose.model("Player", playerSchema);

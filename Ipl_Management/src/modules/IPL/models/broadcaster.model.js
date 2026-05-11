@@ -10,5 +10,6 @@ const broadcasterSchema = new mongoose.Schema({
     }
 },{timestamps:true});
 
+broadcasterSchema.index({name:1 } , {unique:true});
 
 export default mongoose.model("Broadcaster", broadcasterSchema);

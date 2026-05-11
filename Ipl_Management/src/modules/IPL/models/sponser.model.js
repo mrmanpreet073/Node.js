@@ -10,5 +10,6 @@ const sponserSchema = new mongoose.Schema({
     }
 },{timestamps:true});
 
+sponserSchema.index({name:1 } , {unique:true});
 
 export default mongoose.model("Sponser", sponserSchema);

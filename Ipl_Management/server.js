@@ -3,7 +3,7 @@ import connectDb from './src/common/config/db.js'
 import app from './src/app.js'
 
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 8000
 
 async function start() {
 
