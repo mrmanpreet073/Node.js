@@ -12,7 +12,7 @@ const playerSchema = new mongoose.Schema({
         type: String,
         required:[true,"Player role is required"],
         enum: {
-            value: ["batsman", "bowler", "all-rounder", "wicket-keeper"],
+            values: ["batsman", "bowler", "all-rounder", "wicket-keeper"],
             message:
                 'Role must be: "batsman" , "bowler" , "all-rounder" , "wicket-keeper"',
         },
@@ -21,7 +21,7 @@ const playerSchema = new mongoose.Schema({
     teamId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Team",
-        required:[true,"TEam is required"]
+        required:[true,"Team is required"]
     }
 }, { timestamps: true });
 
