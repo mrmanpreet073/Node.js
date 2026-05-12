@@ -47,7 +47,7 @@ const updateOwner = async (id, { name, company }) => {
     try {
         const updatedOwner = await Owner.findByIdAndUpdate(id,
             { name, company, },
-            { new: true }
+            { new: true , runValidators:true}
         )
 
 
