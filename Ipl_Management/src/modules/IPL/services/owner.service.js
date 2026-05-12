@@ -1,79 +1,63 @@
-
-
-//  delete owner
-
 import apiError from "../../../common/utils/apiError.js";
-import apiResponse from "../../../common/utils/apiResponse.js";
-import Owner from "../models/owner.model.js"
+import Owner from "../models/owner.model.js";
 
 const createOwner = async ({ name, company }) => {
 
-    try {
-        const owner = await Owner.create({ name, company });
-        return owner;
-    } catch (error) {
-        throw error;
-    }
+    return await Owner.create({
+        name,
+        company
+    });
 };
 
 const getAllOwner = async () => {
 
-    try {
-        const owners = await Owner.find();
-        return owners
-    } catch (error) {
-        throw error;
+    return await Owner.find();
+};
+
+const getOwnerById = async (id) => {
+
+    const owner = await Owner.findById(id);
+
+    if (!owner) {
+        throw apiError.NotFound("Owner not found");
     }
 
-}
-
-const getOwnerById = async ( id ) => {
-
-    try {
-        const owner = await Owner.findById(id)
-        if (!owner) {
-
-            throw apiError.NotFound("Owner not found")
-        }
-        return owner
-
-    } catch (error) {
-      throw error
-    }
-
-}
+    return owner;
+};
 
 const updateOwner = async (id, { name, company }) => {
-    try {
-        const updatedOwner = await Owner.findByIdAndUpdate(id,
-            { name, company, },
-            { new: true , runValidators:true}
-        )
 
-
-        if (!updatedOwner) {
-            throw apiError.NotFound("owner not found with this id")
+    const updatedOwner = await Owner.findByIdAndUpdate(
+        id,
+        { name, company },
+        {
+            new: true,
+            runValidators: true
         }
+    );
 
-        return updatedOwner;
-
-    } catch (error) {
-        throw error
+    if (!updatedOwner) {
+        throw apiError.NotFound("Owner not found with this id");
     }
-}
+
+    return updatedOwner;
+};
+
 const deleteOwner = async (id) => {
-    try {
-        const owner = await Owner.findByIdAndDelete(id)
 
-        if (!owner) {
-            throw apiError.NotFound("owner not found with this id")
-        }
+    const owner = await Owner.findByIdAndDelete(id);
 
-        return owner
-
-    } catch (error) {
-        throw error
+    if (!owner) {
+        throw apiError.NotFound("Owner not found with this id");
     }
-}
 
-export { createOwner, getAllOwner, getOwnerById, updateOwner, deleteOwner }
+    return owner;
+};
+
+export {
+    createOwner,
+    getAllOwner,
+    getOwnerById,
+    updateOwner,
+    deleteOwner
+};
