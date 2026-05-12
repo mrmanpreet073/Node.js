@@ -2,88 +2,82 @@ import apiError from "../../../common/utils/apiError.js";
 import Player from "../models/player.model.js"
 
 
-const createPlayer = async ({ name, role,teamId }) => {
+const createPlayer = async ({ name, role, teamId }) => {
 
-    try {
-        const player = await Player.create({  name, role,teamId });
-        if (!player) {
-            throw apiError.badRequest("player Not Created")
-        }
-        return player
+    const team = await Team.findById(teamId)
 
-    } catch (error) {
-        throw error
+    if (!team) {
+        throw apiError.NotFound("Team not found")
     }
 
+    return await Player.create({
+        name,
+        role,
+        teamId
+    })
 }
-
 
 const getPlayers = async () => {
-    try {
-        const players = await Player.find()
 
-        if (!players) {
-            throw apiError.NotFound(`Players not Found `)
-        }
+    const players = await Player.find()
+        .populate("teamId")
 
-        return player
-
-    } catch (error) {
-        throw error
-    }
+    return players
 }
-
 
 const updatePlayerRole = async (id, { role }) => {
-    try {
-        const player = await Player.findByIdAndUpdate(id,
-            { role },
-            { new: true, runValidators: true }
-        )
 
-        if (!player) {
-            throw apiError.NotFound(`Player not Found with This Id=> ${id} `)
+    const player = await Player.findByIdAndUpdate(
+        id,
+        { role },
+        {
+            new: true,
+            runValidators: true
         }
+    )
 
-        return player
-
-    } catch (error) {
-        throw error
+    if (!player) {
+        throw apiError.NotFound("Player not found")
     }
+
+    return player
 }
 
-const transferPlayer = async (id, {teamId}) => {
-    try {
-        const player = await Player.findByIdAndUpdate(id,
-            { teamId },
-            { new: true, runValidators: true }
-        )
+const transferPlayer = async (id, { teamId }) => {
 
-        if (!player) {
-            throw apiError.NotFound(`Player not Found with This Id=> ${id} `)
-        }
+    const team = await Team.findById(teamId)
 
-        return player
-
-    } catch (error) {
-        throw error
+    if (!team) {
+        throw apiError.NotFound("Team not found")
     }
+
+    const player = await Player.findByIdAndUpdate(
+        id,
+        { teamId },
+        {
+            new: true,
+            runValidators: true
+        }
+    )
+    if (!player) {
+        throw apiError.NotFound("Player not found")
+    }
+
+    return player
 }
 
 const deletePlayer = async (id) => {
-    try {
-        const player = await Player.findByIdAndDelete(id)
 
-        if (!player) {
-            throw apiError.NotFound(`Player not Found with This Id=> ${id} `)
-        }
+    const player = await Player.findByIdAndDelete(id)
 
-        return player
-
-    } catch (error) {
-        throw error
+    if (!player) {
+        throw apiError.NotFound(
+            `Player not found with this id => ${id}`
+        )
     }
+
+    return player
 }
 
 
-export { createPlayer, updatePlayerRole, getPlayers, transferPlayer ,deletePlayer}
+export { createPlayer, updatePlayerRole, getPlayers, transferPlayer, deletePlayer }
