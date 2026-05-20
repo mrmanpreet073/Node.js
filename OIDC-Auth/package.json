@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
+    "dev": "tsc-watch -p tsconfig.json --onSuccess \"node dist/index.js\"",
     "build": "tsc -p .",
     "start": "node dist/index.js",
     "studio": "drizzle-kit studio",
@@ -17,16 +17,23 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node-jose": "^1.1.13",
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
+    "jose": "^6.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "node-jose": "^2.2.0",
     "pg": "^8.21.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.8.0",
+    "@types/node": "^25.9.1",
     "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsc": "^2.0.4",
