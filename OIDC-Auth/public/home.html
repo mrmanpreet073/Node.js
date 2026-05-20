@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>OIDC Authentication</title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      background:#0f172a;
+      color:white;
+    }
+
+    /* NAVBAR */
+
+    nav{
+
+      width:100%;
+
+      padding:20px 80px;
+
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+
+      background:#111827;
+
+      border-bottom:
+      1px solid #1e293b;
+    }
+
+    .logo{
+
+      font-size:28px;
+      font-weight:bold;
+
+      color:#3b82f6;
+    }
+
+    .nav-links{
+
+      display:flex;
+      gap:20px;
+    }
+
+    .nav-links a{
+
+      text-decoration:none;
+
+      color:#cbd5e1;
+
+      transition:0.3s;
+    }
+
+    .nav-links a:hover{
+      color:white;
+    }
+
+    .buttons{
+
+      display:flex;
+      gap:15px;
+    }
+
+    .btn{
+
+      padding:10px 18px;
+
+      border:none;
+
+      border-radius:10px;
+
+      font-size:15px;
+
+      cursor:pointer;
+
+      transition:0.3s;
+
+      text-decoration:none;
+    }
+
+    .login-btn{
+
+      background:#1e293b;
+      color:white;
+    }
+
+    .login-btn:hover{
+      background:#334155;
+    }
+
+    .signup-btn{
+
+      background:#2563eb;
+      color:white;
+    }
+
+    .signup-btn:hover{
+      background:#1d4ed8;
+    }
+
+
+    /* HERO SECTION */
+
+    .hero{
+
+      height:90vh;
+
+      display:flex;
+      justify-content:center;
+      align-items:center;
+
+      padding:0 80px;
+    }
+
+    .hero-content{
+
+      max-width:700px;
+
+      text-align:center;
+    }
+
+    .hero-content h1{
+
+      font-size:60px;
+
+      margin-bottom:20px;
+
+      line-height:1.2;
+    }
+
+    .hero-content h1 span{
+      color:#3b82f6;
+    }
+
+    .hero-content p{
+
+      color:#94a3b8;
+
+      font-size:18px;
+
+      line-height:1.7;
+
+      margin-bottom:35px;
+    }
+
+    .hero-buttons{
+
+      display:flex;
+      justify-content:center;
+      gap:20px;
+    }
+
+    .hero-btn{
+
+      padding:14px 28px;
+
+      border-radius:12px;
+
+      text-decoration:none;
+
+      font-size:16px;
+      font-weight:bold;
+
+      transition:0.3s;
+    }
+
+    .primary-btn{
+
+      background:#2563eb;
+      color:white;
+    }
+
+    .primary-btn:hover{
+      background:#1d4ed8;
+    }
+
+    .secondary-btn{
+
+      background:#1e293b;
+      color:white;
+    }
+
+    .secondary-btn:hover{
+      background:#334155;
+    }
+
+
+    /* FEATURES */
+
+    .features{
+
+      padding:80px;
+
+      display:grid;
+
+      grid-template-columns:
+      repeat(auto-fit, minmax(250px, 1fr));
+
+      gap:25px;
+    }
+
+    .card{
+
+      background:#1e293b;
+
+      padding:30px;
+
+      border-radius:16px;
+
+      transition:0.3s;
+    }
+
+    .card:hover{
+      transform:translateY(-5px);
+    }
+
+    .card h3{
+
+      margin-bottom:15px;
+
+      color:#3b82f6;
+    }
+
+    .card p{
+
+      color:#94a3b8;
+
+      line-height:1.6;
+    }
+
+
+    /* FOOTER */
+
+    footer{
+
+      padding:25px;
+
+      text-align:center;
+
+      color:#94a3b8;
+
+      border-top:
+      1px solid #1e293b;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+
+  <nav>
+
+    <div class="logo">
+      OIDC Auth
+    </div>
+
+    <div class="nav-links">
+
+      <a href="/">Home</a>
+
+      <a href="/docs">Docs</a>
+
+      <a href="/about">About</a>
+
+    </div>
+
+    <div class="buttons">
+
+      <a
+        href="/login.html"
+        class="btn login-btn"
+      >
+        Login
+      </a>
+
+      <a
+        href="/signup.html"
+        class="btn signup-btn"
+      >
+        Sign Up
+      </a>
+
+    </div>
+
+  </nav>
+
+
+  <!-- HERO -->
+
+  <section class="hero">
+
+    <div class="hero-content">
+
+      <h1>
+        Secure <span>OIDC Authentication</span>
+        System
+      </h1>
+
+      <p>
+        Build secure authentication and authorization
+        workflows using OpenID Connect with modern
+        login, signup, consent, and token-based
+        authentication mechanisms.
+      </p>
+
+      <div class="hero-buttons">
+
+        <a
+          href="/signup.html"
+          class="hero-btn primary-btn"
+        >
+          Get Started
+        </a>
+
+        <a
+          href="/login.html"
+          class="hero-btn secondary-btn"
+        >
+          Login
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- FEATURES -->
+
+  <section class="features">
+
+    <div class="card">
+
+      <h3>
+        Secure Authentication
+      </h3>
+
+      <p>
+        Password hashing using bcrypt and secure
+        user validation with PostgreSQL and Drizzle ORM.
+      </p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>
+        OIDC Compliance
+      </h3>
+
+      <p>
+        Implements OpenID Connect authentication
+        flow with consent and authorization support.
+      </p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>
+        Consent Screen
+      </h3>
+
+      <p>
+        Users can explicitly allow or deny access
+        to applications requesting permissions.
+      </p>
+
+    </div>
+
+    <div class="card">
+
+      <h3>
+        Token Based Access
+      </h3>
+
+      <p>
+        Supports secure session and token workflows
+        for protected application resources.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- FOOTER -->
+
+  <footer>
+
+    © 2026 OIDC Authentication Project.
+    All rights reserved.
+
+  </footer>
+
+</body>
+</html>
