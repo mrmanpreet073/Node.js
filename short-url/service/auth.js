@@ -1,27 +1,24 @@
-import jwt from 'jsonwebtoken'
-const secret = "SUdg87T*W&T*"
+// service/auth.js
+import jwt from 'jsonwebtoken';
+const secret = "SUdg87T*W&T*";
 
 function setUser(user) {
-    return jwt.sign(
-        {
-            _id: user._id,
-            email: user.email,
-            username: user.username,
-        },
-        secret,
-        { expiresIn: "24h" } // Good practice: tokens should eventually expire
-    );
+    return jwt.sign({
+        _id: user._id,
+        email: user.email,
+    }, secret);
 }
+
 function getUser(token) {
-
     if (!token) return null;
-    // console.log('jwt verify:', jwt.verify(token, secret));
-
-    return jwt.verify(token, secret)
+    try {
+        return jwt.verify(token, secret);
+    } catch (error) {
+        return null;
+    }
 }
 
-export { setUser, getUser }
-
+export { setUser, getUser };
 
 
 

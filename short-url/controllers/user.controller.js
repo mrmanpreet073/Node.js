@@ -48,8 +48,8 @@ async function handleLogin(req, res) {
     const token = setUser(user);
     // console.log('Token->',token);
     
-    res.cookie('uid',token);
-
-    return res.status(200).json({ success: true, redirect: '/' });
+    // res.cookie('uid',token);
+return res.status(200).json({ success: true, token, redirect: '/' });
+    // return res.status(200).json({ success: true, redirect: '/' });
 }
 export { handleSignup, handleLogin }

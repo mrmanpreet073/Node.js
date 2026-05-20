@@ -18,14 +18,12 @@ const PORT = 8000;
 
 
 // setting up Ejs 
-app.set('view engine', 'ejs')  // This tells Express: “When I render pages, use the EJS template engine.”
-// So when you write: res.render("home")
-// Express automatically looks for: home.ejs
-app.set('views', path.resolve('./views'))  //This tells Express:  “My template files are inside the views folder.”
-
+app.set('view engine', 'ejs')  //Set EJS as the template engine
+app.set('views', path.resolve('./views'))  //Tell Express where the view files are stored
+// path.resolve()->function converts a relative path into an absolute path.
 
 //ROUTES
-app.use('/url', redirectToLoggedInUserOnly, urlRoute);
+app.use('/url', urlRoute);
 app.use('/', staticRouter);
 app.use('/user', userRouter);
 

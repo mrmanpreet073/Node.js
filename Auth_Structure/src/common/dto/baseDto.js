@@ -6,8 +6,8 @@ class baseDto {
 
     static validate(data) {
         const { error, value } = this.schema.validate(data, {
-            abortEarly: false,
-            stripUnknown: true
+            abortEarly: false,                                // throw all errors not just the first one
+            stripUnknown: true                                // remove unknown keys that are not defined in the schema
         })
         if (error) {
             const errors = error.details.map((error) => {

@@ -5,12 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - URL Shortener</title>
-    
+
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
     <style>
         /* Modern Reset */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -127,6 +131,10 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    // 👇 NEW: Save the token to localStorage
+                    localStorage.setItem("token", result.token);
+                    console.log("Token saved:", localStorage.getItem("token")); // 👈 add this
+
                     window.location.href = result.redirect || '/';
                 } else {
                     Toastify({
@@ -134,7 +142,7 @@
                         duration: 3000,
                         gravity: "top",
                         position: "center",
-                        style: { 
+                        style: {
                             background: "#ff5f6d",
                             borderRadius: "8px"
                         }
@@ -147,8 +155,28 @@
                     style: { background: "orange" }
                 }).showToast();
             }
+
         });
+
+        // Check for error message in URL and show toast
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorMessage = urlParams.get('error');
+        if (errorMessage) {
+            Toastify({
+                text: errorMessage,
+                duration: 3000,
+                gravity: "top",
+                position: "center",
+                style: {
+                    background: "#ff5f6d",
+                    borderRadius: "8px"
+                }
+            }).showToast();
+        }
+
+
     </script>
 
 </body>
+
 </html>

@@ -6,8 +6,8 @@ import redirectToLoggedInUserOnly from '../middleware/auth.js';
 
 
 const router = express.Router();
-router.get('/',redirectToLoggedInUserOnly,async(req,res) => {
-const urls =await URL.find({ createdBy: req.user._id })
+router.get('/',async(req,res) => {
+const urls =await URL.find({ })
     res.render('home',{
         allUrls:urls,
         user: req.user

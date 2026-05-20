@@ -3,6 +3,10 @@ import cookieparser from 'cookie-parser';
 import authRouter from './modules/auth/auth.routes.js';
 import apiError from './common/utils/apiError.js';
 import ownerRouter from './modules/IPL/routes/owner.routes.js';
+import PlayerRouter from './modules/IPL/routes/player.routes.js';
+import teamRouter from './modules/IPL/routes/team.route.js';
+import tsRouter from './modules/IPL/routes/teamSponser.routes.js';
+import playerStatsRouter from './modules/IPL/routes/playerStats.routes.js';
 
 
 const app = express();
@@ -13,6 +17,10 @@ app.use(express.urlencoded({extended:true}))
 
 app.use('/api/auth',authRouter) 
 app.use('/api/owner',ownerRouter) 
+app.use('/api/player',PlayerRouter) 
+app.use('/api/team',teamRouter) 
+app.use('/api/teamSponser',tsRouter) 
+app.use('/api/playerStats',playerStatsRouter) 
 
 
 

@@ -112,7 +112,7 @@
 </head>
 
 <body>
- <nav style="
+    <nav style="
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
@@ -122,8 +122,8 @@
     font-family: sans-serif;
         gap: 26px;
 ">
-    <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="
             background: #3b82f6; 
             width: 36px; 
             height: 36px; 
@@ -135,17 +135,20 @@
             font-weight: bold;
             box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         ">S</div>
-        <span style="color: #ffffff; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px;">ShortURL</span>
-    </div>
+            <span style="color: #ffffff; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px;">ShortURL</span>
+        </div>
 
-    <div style="display: flex; align-items: center; gap: 34px;">
-        <% if (locals.user) { %>
-            <div style="display: flex; align-items: center; gap: 32px;">
-                <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <span style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User</span>
-                    <span style="font-size: 14px; color: #e2e8f0; font-weight: 600;"><%= user.username %></span>
-                </div>
-                <div style="
+        <div style="display: flex; align-items: center; gap: 34px;">
+            <% if (locals.user) { %>
+                <div style="display: flex; align-items: center; gap: 32px;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                        <span
+                            style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">User</span>
+                        <span style="font-size: 14px; color: #e2e8f0; font-weight: 600;">
+                            <%= user.username %>
+                        </span>
+                    </div>
+                    <div style="
                     width: 40px; 
                     height: 40px; 
                     background: #1e293b; 
@@ -158,11 +161,11 @@
                     font-weight: bold;
                     font-size: 18px;
                 ">
-                    <%= user.username.charAt(0).toUpperCase() %>
+                        <%= user.username.charAt(0).toUpperCase() %>
+                    </div>
                 </div>
-            </div>
-            
-            <a href="/user/logout" style="
+
+                <a href="#" onclick="logout()" style="
                 background-color: rgba(239, 68, 68, 0.1); 
                 color: #f87171; 
                 padding: 10px 18px; 
@@ -172,22 +175,26 @@
                 font-size: 14px; 
                 font-weight: 600;
                 transition: 0.3s;
-            " onmouseover="this.style.backgroundColor='#ef4444'; this.style.color='white';" 
-               onmouseout="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'; this.style.color='#f87171';">
-                Logout
-            </a>
-        <% } %>
-    </div>
-</nav>
+            " onmouseover="this.style.backgroundColor='#ef4444'; this.style.color='white';"
+                    onmouseout="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'; this.style.color='#f87171';">
+                    Logout
+                </a>
+                <% } %>
+        </div>
+    </nav>
     <h1>URL Shortener</h1>
 
     <div class="container">
         <!-- Input Section -->
-        <form method="POST" action="/url">
+        <!-- Replace your Shorten form with this -->
+        <form id="shortenForm">
             <label for="Url"><strong>Enter URL:</strong></label>
-            <input type="text" name="url" placeholder="https://example.com" required>
+            <input type="text" id="urlInput" name="url" placeholder="https://example.com" required>
             <button type="submit">Shorten</button>
         </form>
+
+        <!-- Keep your result and table EJS as-is -->
+
 
         <!-- Success Message -->
         <div class="result">
@@ -229,15 +236,14 @@
                                     <a href="http://localhost:5000/url/analysis/<%=url.shortId %>">Analysis</a>
                                 </td>
                                 <td style="text-align: center; vertical-align: middle;">
-                                    <form method="POST" action="/url/delete/<%= url.shortId %>"
-                                        onsubmit="return confirm('Are you sure you want to delete this URL?');"
-                                        style="display: inline-block; margin: 0;">
 
+                                    <!-- New: remove method/action, add class and data attribute -->
+                                    <form class="deleteForm" data-shortid="<%= url.shortId %>"
+                                        style="display:inline-block; margin:0;">
                                         <button type="submit"
                                             style="background-color: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
                                             Delete
                                         </button>
-
                                     </form>
                                 </td>
                             </tr>
@@ -248,6 +254,65 @@
         </div>
     </div>
 
+    <script>
+        const token = localStorage.getItem("token");
+
+        // 🔒 If no token, redirect to login
+        if (!token) {
+            window.location.href = "/login?error=Please login to continue.";
+        }
+
+        // ✅ Shorten URL form
+        document.getElementById("shortenForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const url = document.getElementById("urlInput").value;
+
+            const res = await fetch("/url", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`  // 👈 token added here
+                },
+                body: JSON.stringify({ url })
+            });
+
+            if (res.ok) {
+                window.location.reload(); // reload to show new short URL
+            } else if (res.status === 401) {
+                window.location.href = "/login"; // token expired
+            }
+        });
+
+        // ✅ Delete URL buttons
+        document.querySelectorAll(".deleteForm").forEach(form => {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                if (!confirm("Are you sure you want to delete this URL?")) return;
+
+                const shortId = form.dataset.shortid;
+
+                const res = await fetch(`/url/delete/${shortId}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`  // 👈 token added here too
+                    }
+                });
+
+                if (res.ok) {
+                    window.location.reload();
+                } else if (res.status === 401) {
+                    window.location.href = "/login";
+                }
+            });
+        });
+
+        function logout() {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+    </script>
 </body>
 
 </html>
