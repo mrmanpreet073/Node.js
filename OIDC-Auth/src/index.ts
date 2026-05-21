@@ -56,42 +56,19 @@ app.get("/", (_: Request, res: Response) => {
 // OpenID Configuration
 // ======================================================
 
-app.get(
-  "/.well-known/openid-configuration",
-  (_: Request, res: Response) => {
+app.get( "/.well-known/openid-configuration",(_: Request, res: Response) => {
 
     return res.json({
       issuer: ISSUER,
-
-      authorization_endpoint:
-        `${ISSUER}/o/authorize`,
-
-      token_endpoint:
-        `${ISSUER}/o/token`,
-
-      userinfo_endpoint:
-        `${ISSUER}/o/userinfo`,
-
-      jwks_uri:
-        `${ISSUER}/.well-known/jwks.json`,
-
+      authorization_endpoint:`${ISSUER}/o/authorize`,
+      token_endpoint: `${ISSUER}/o/token`,
+      userinfo_endpoint: `${ISSUER}/o/userinfo`,
+      jwks_uri:`${ISSUER}/.well-known/jwks.json`,
       response_types_supported: ["code"],
-
       subject_types_supported: ["public"],
-
-      id_token_signing_alg_values_supported: [
-        "RS256"
-      ],
-
-      scopes_supported: [
-        "openid",
-        "profile",
-        "email"
-      ],
-
-      token_endpoint_auth_methods_supported: [
-        "client_secret_post"
-      ]
+      id_token_signing_alg_values_supported: ["RS256"],
+      scopes_supported: ["openid", "profile", "email"],
+      token_endpoint_auth_methods_supported: [ "client_secret_post"]
     });
   }
 );
@@ -116,9 +93,7 @@ app.get("/signup", (_: Request, res: Response) => {
 // Signup
 // ======================================================
 
-app.post(
-  "/signup",
-  async (req: Request, res: Response) => {
+app.post( "/signup",async (req: Request, res: Response) => {
 
     const {
       firstName,
@@ -150,10 +125,7 @@ app.post(
       );
     }
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(password,10);
 
     await db.insert(usersTable).values({
       firstName,
@@ -283,9 +255,7 @@ app.post("/o/authorize", async (req: Request, res: Response) => {
 
   // Generate Authorization Code
 
-  const code = crypto
-    .randomBytes(32)
-    .toString("hex");
+  const code = crypto.randomBytes(32).toString("hex");
 
   console.log("Generated Authorization Code:", code);
 
