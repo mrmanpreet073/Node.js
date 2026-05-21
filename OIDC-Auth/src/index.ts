@@ -286,8 +286,8 @@ app.post("/o/authorize", async (req: Request, res: Response) => {
   const code = crypto
     .randomBytes(32)
     .toString("hex");
-    
-    console.log("Generated Authorization Code:", code);
+
+  console.log("Generated Authorization Code:", code);
 
 
   authorizationCodes.set(code, {
@@ -302,8 +302,7 @@ app.post("/o/authorize", async (req: Request, res: Response) => {
 
   // Redirect back to client
 
-  const redirectURL =
-    `${redirect_uri}?code=${code}&state=${state}`;
+  const redirectURL = `${redirect_uri}?code=${code}&state=${state}`;
 
   // console.log(redirectURL);
 
@@ -330,14 +329,14 @@ app.post("/o/token", async (req: Request, res: Response) => {
     redirect_uri,
     grant_type
   });
-console.log("Current Authorization Codes:", Array.from(authorizationCodes.values()));
+  console.log("Current Authorization Codes:", Array.from(authorizationCodes.values()));
   if (grant_type !== "authorization_code") {
     return res.status(400).json({
       error: "unsupported_grant_type"
     });
   }
 
-  const storedCode=authorizationCodes.get(code);// code apna hi he ??
+  const storedCode = authorizationCodes.get(code);// code apna hi he ??
 
   if (!storedCode) {
     return res.status(400).json({
@@ -408,27 +407,27 @@ console.log("Current Authorization Codes:", Array.from(authorizationCodes.values
 
   // Access Token
 
-  const accessToken = JWT.sign(claims,PRIVATE_KEY,{  algorithm: "RS256"});
+  const accessToken = JWT.sign(claims, PRIVATE_KEY, { algorithm: "RS256" });
 
   // ID Token
 
-  const idToken = JWT.sign(claims, PRIVATE_KEY,{  algorithm: "RS256"});
+  const idToken = JWT.sign(claims, PRIVATE_KEY, { algorithm: "RS256" });
 
   const refreshToken =
-  crypto
-    .randomBytes(64)
-    .toString("hex");
+    crypto
+      .randomBytes(64)
+      .toString("hex");
 
-// Store In Cookie
+  // Store In Cookie
 
-res.cookie( "refresh_token", refreshToken,
-  {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax", //Protects against many CSRF attacks.
-    maxAge:1000 * 60 * 60 * 24 * 7 // 7 days
-  }
-);
+  res.cookie("refresh_token", refreshToken,
+    {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax", //Protects against many CSRF attacks.
+      maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    }
+  );
 
 
   return res.json({
@@ -444,9 +443,7 @@ res.cookie( "refresh_token", refreshToken,
 // UserInfo Endpoint
 // ======================================================
 
-app.get(
-  "/o/userinfo",
-  (req: Request, res: Response) => {
+app.get( "/o/userinfo",(req: Request, res: Response) => {
 
     const authHeader =
       req.headers.authorization;
@@ -465,8 +462,7 @@ app.get(
       );
     }
 
-    const token =
-      authHeader.split(" ")[1];
+    const token = authHeader.split(" ")[1];
 
     if (!token) {
       return res.status(401).send(
@@ -476,13 +472,7 @@ app.get(
 
     try {
 
-      const decoded = JWT.verify(
-        token,
-        PUBLIC_KEY,
-        {
-          algorithms: ["RS256"]
-        }
-      );
+      const decoded = JWT.verify(token,PUBLIC_KEY,{algorithms: ["RS256"]} );
 
       return res.json(decoded);
 
@@ -499,18 +489,11 @@ app.get(
 // JWKS Endpoint
 // ======================================================
 
-app.get(
-  "/.well-known/jwks.json",
-  async (_: Request, res: Response) => {
+app.get( "/.well-known/jwks.json",async (_: Request, res: Response) => {
 
-    const key = await jose.JWK.asKey(
-      PUBLIC_KEY,
-      "pem"
-    );
+    const key = await jose.JWK.asKey( PUBLIC_KEY, "pem");
 
-    return res.json({
-      keys: [key.toJSON()]
-    });
+    return res.json({ keys: [key.toJSON()]});
   }
 );
 
@@ -591,6 +574,90 @@ app.post("/o/register-client", async (req: Request, res: Response) => {
         "Internal server error"
     });
   }
+}
+);
+
+app.post("/o/refresh", async (req: Request, res: Response) => {
+
+  // ============================
+  // Read Refresh Token Cookie
+  // ============================
+
+  const refreshToken = req.cookies.refresh_token;
+
+  if (!refreshToken) {
+
+    return res.status(401).json({
+      error:
+        "Refresh token missing"
+    });
+  }
+
+  // ============================
+  // OPTIONAL:
+  // Verify Refresh Token From DB
+  // ============================
+
+  // For now demo validation only
+
+  // In production:
+  // check DB/Redis
+
+  // ============================
+  // Generate New Access Token
+  // ============================
+
+  const ISSUER = `http://localhost:${PORT}`;
+
+  const now = Math.floor(Date.now() / 1000);
+
+  // Example demo user
+  // Replace with DB lookup
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .limit(1);
+
+  if (!user) {
+
+    return res.status(404).json({
+      error:
+        "User not found"
+    });
+  }
+
+  const claims: JWTClaims = {
+
+    iss: ISSUER,
+    sub: user.id,
+    aud: "client-app",
+    email: user.email,
+    email_verified: String(user.emailVerified),
+    iat: now,
+    exp: now + 3600,
+    given_name: user.firstName ?? "",
+    family_name: user.lastName ?? undefined,
+    name: [user.firstName, user.lastName].filter(Boolean).join(" "),
+    picture: user.profileImageURL ?? undefined
+  };
+
+  // ============================
+  // Create New Access Token
+  // ============================
+
+  const accessToken = JWT.sign(claims, PRIVATE_KEY, { algorithm: "RS256" });
+
+  // ============================
+  // Return New Access Token
+  // ============================
+
+  return res.json({
+
+    access_token:accessToken,
+    token_type:"Bearer",
+    expires_in: 3600
+  });
 }
 );
 
