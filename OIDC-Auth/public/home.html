@@ -204,12 +204,13 @@
     <div class="nav-links">
       <a href="/.well-known/openid-configuration">Discovery</a>
       <a href="/.well-known/jwks.json">Public Keys</a>
+      <a style="color: #3b82f6;" href="/o/register-client">Register</a>
     </div>
 
     <div class="buttons">
-      <a href="/o/authorize" class="btn login-btn">
-        Login
-      </a>
+      <button id="loginBtn">
+  Login With OIDC
+</button>
       <a href="/signup.html" class="btn signup-btn">
         Sign Up
       </a>
@@ -302,7 +303,39 @@
   <footer>
     © 2026 OIDC Authorization Server. All rights reserved.
   </footer>
+<script>
 
+  const loginBtn =
+    document.getElementById("loginBtn");
+
+  loginBtn.addEventListener(
+    "click",
+    () => {
+
+      const params =
+        new URLSearchParams({
+
+          client_id:
+            "774068bf10b8b92f2a4d7c299bcf3d99",
+
+          redirect_uri:
+            "http://localhost:3000/callback.html",
+
+          response_type:
+            "code",
+
+          scope:
+            "openid profile email",
+
+          state:
+            crypto.randomUUID()
+        });
+
+      window.location.href =
+        `http://localhost:5000/o/authorize?${params}`;
+    }
+  );
+</script>
 </body>
 
 </html>

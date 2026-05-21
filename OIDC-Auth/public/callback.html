@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>OAuth Callback</title>
+
+  <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #f4f4f4;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow:
+        0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .status {
+      margin-bottom: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #eef2ff;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>OAuth Callback</h1>
+
+    <p>
+      Exchanging authorization code
+      for access token...
+    </p>
+
+    <div class="status" id="status">
+      Processing...
+    </div>
+
+    <pre id="output"></pre>
+
+  </div>
+
+  <script>
+
+    // ==========================================
+    // Config
+    // ==========================================
+
+    const CLIENT_ID = "my-client";
+
+    const REDIRECT_URI =
+      "http://localhost:5000/callback.html";
+
+    const AUTH_SERVER =
+      "http://localhost:5000";
+
+    const output =
+      document.getElementById("output");
+
+    const status =
+      document.getElementById("status");
+
+    // ==========================================
+    // Read Authorization Code
+    // ==========================================
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const code = params.get("code");
+
+    // ==========================================
+    // Validate Code
+    // ==========================================
+
+    if (!code) {
+
+      status.textContent =
+        "Authorization code missing";
+
+      output.textContent =
+        "No code found in callback URL.";
+
+      throw new Error("Code missing");
+    }
+
+    // ==========================================
+    // Exchange Code For Token
+    // ==========================================
+
+    async function exchangeCode() {
+
+      try {
+
+        status.textContent =
+          "Requesting access token...";
+
+        const tokenResponse = await fetch(
+          `${AUTH_SERVER}/o/token`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+
+              code,
+
+              client_id: CLIENT_ID,
+
+              redirect_uri: REDIRECT_URI,
+
+              grant_type:
+                "authorization_code"
+
+            })
+          }
+        );
+
+        const tokenData =
+          await tokenResponse.json();
+
+        // ======================================
+        // Save Access Token
+        // ======================================
+
+        localStorage.setItem(
+          "access_token",
+          tokenData.access_token
+        );
+
+        status.textContent =
+          "Access token received";
+
+        // ======================================
+        // Fetch UserInfo
+        // ======================================
+
+        const userInfoResponse =
+          await fetch(
+            `${AUTH_SERVER}/o/userinfo`,
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${tokenData.access_token}`
+              }
+            }
+          );
+
+        const userInfo =
+          await userInfoResponse.json();
+
+        status.textContent =
+          "Login successful";
+
+        // ======================================
+        // Display Result
+        // ======================================
+
+        output.textContent =
+          JSON.stringify(
+            {
+              token_response: tokenData,
+              userinfo: userInfo
+            },
+            null,
+            2
+          );
+
+      } catch (error) {
+
+        status.textContent =
+          "OAuth flow failed";
+
+        output.textContent =
+          error.message;
+      }
+    }
+
+    exchangeCode();
+
+  </script>
+
+</body>
+</html>
