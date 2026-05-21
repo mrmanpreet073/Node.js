@@ -1,231 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
   <title>OAuth Callback</title>
 
   <style>
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
     body {
-      background: #f4f4f4;
-      min-height: 100vh;
+      background: #0f172a;
+      color: white;
+      font-family: Arial;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      height: 100vh;
     }
 
-    .container {
-      width: 100%;
-      max-width: 700px;
-      background: white;
-      border-radius: 12px;
-      padding: 40px;
-      box-shadow:
-        0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 15px;
-    }
-
-    p {
-      color: #666;
-      margin-bottom: 25px;
-    }
-
-    .status {
-      margin-bottom: 20px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #eef2ff;
-      color: #1e3a8a;
-      font-weight: bold;
-    }
-
-    pre {
-      background: #111827;
-      color: #f9fafb;
-      padding: 20px;
+    .box {
+      background: #1e293b;
+      padding: 30px;
       border-radius: 10px;
-      overflow-x: auto;
-      font-size: 14px;
-      line-height: 1.5;
+      width: 400px;
+      text-align: center;
     }
-
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+  <div class="box">
 
-    <h1>OAuth Callback</h1>
+    <h2>Logging you in...</h2>
 
-    <p>
-      Exchanging authorization code
-      for access token...
+    <p id="message">
+      Please wait...
     </p>
-
-    <div class="status" id="status">
-      Processing...
-    </div>
-
-    <pre id="output"></pre>
 
   </div>
 
   <script>
 
-    // ==========================================
-    // Config
-    // ==========================================
-
-    const CLIENT_ID = "my-client";
-
-    const REDIRECT_URI =
-      "http://localhost:5000/callback.html";
-
-    const AUTH_SERVER =
-      "http://localhost:5000";
-
-    const output =
-      document.getElementById("output");
-
-    const status =
-      document.getElementById("status");
-
-    // ==========================================
-    // Read Authorization Code
-    // ==========================================
-
-    const params =
-      new URLSearchParams(window.location.search);
-
-    const code = params.get("code");
-
-    // ==========================================
-    // Validate Code
-    // ==========================================
-
-    if (!code) {
-
-      status.textContent =
-        "Authorization code missing";
-
-      output.textContent =
-        "No code found in callback URL.";
-
-      throw new Error("Code missing");
-    }
-
-    // ==========================================
-    // Exchange Code For Token
-    // ==========================================
-
     async function exchangeCode() {
+
+      // ============================
+      // Read Query Params
+      // ============================
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      const code =
+        params.get("code");
+
+      const state =
+        params.get("state");
+
+      if (!code) {
+
+        document.getElementById(
+          "message"
+        ).innerText =
+          "Authorization code missing";
+
+        return;
+      }
 
       try {
 
-        status.textContent =
-          "Requesting access token...";
+        // ============================
+        // Exchange Code For Tokens
+        // ============================
 
-        const tokenResponse = await fetch(
-          `${AUTH_SERVER}/o/token`,
-          {
-            method: "POST",
+        const response = await fetch("http://localhost:5000/o/token", {
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+          method: "POST",
 
-            body: JSON.stringify({
+          headers: { "Content-Type": "application/json" },
 
-              code,
+          body: JSON.stringify({
 
-              client_id: CLIENT_ID,
-
-              redirect_uri: REDIRECT_URI,
-
-              grant_type:
-                "authorization_code"
-
-            })
-          }
+            code,
+            client_id: "774068bf10b8b92f2a4d7c299bcf3d99",
+            client_secret: "YOUR_CLIENT_SECRET",
+            redirect_uri: "http://localhost:5000/callback.html",
+            grant_type:"authorization_code"
+          })
+        }
         );
 
-        const tokenData =
-          await tokenResponse.json();
+        const data = await response.json();
 
-        // ======================================
-        // Save Access Token
-        // ======================================
+        console.log(response);
+        console.log(data);
 
         localStorage.setItem(
           "access_token",
-          tokenData.access_token
+          data.access_token
         );
 
-        status.textContent =
-          "Access token received";
+        localStorage.setItem(
+          "id_token",
+          data.id_token
+        );
 
-        // ======================================
-        // Fetch UserInfo
-        // ======================================
+        document.getElementById(
+          "message"
+        ).innerText =
+          "Login Successful";
 
-        const userInfoResponse =
-          await fetch(
-            `${AUTH_SERVER}/o/userinfo`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${tokenData.access_token}`
-              }
-            }
-          );
+        // ============================
+        // Redirect User
+        // ============================
 
-        const userInfo =
-          await userInfoResponse.json();
+        setTimeout(() => {
 
-        status.textContent =
-          "Login successful";
+          window.location.href =
+            "/home";
 
-        // ======================================
-        // Display Result
-        // ======================================
-
-        output.textContent =
-          JSON.stringify(
-            {
-              token_response: tokenData,
-              userinfo: userInfo
-            },
-            null,
-            2
-          );
-
+        }, 18000);
       } catch (error) {
 
-        status.textContent =
-          "OAuth flow failed";
+        console.error(error);
 
-        output.textContent =
-          error.message;
+        document.getElementById("message").innerText = "Login failed";
       }
     }
 
@@ -234,4 +133,5 @@
   </script>
 
 </body>
+
 </html>

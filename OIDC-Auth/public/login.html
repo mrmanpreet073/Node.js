@@ -153,25 +153,13 @@
   </div>
   <script>
 
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
+    const params = new URLSearchParams(window.location.search);
 
-    document.getElementById(
-      "client_id"
-    ).value =
-      params.get("client_id");
+    document.getElementById("client_id").value = params.get("client_id");
 
-    document.getElementById(
-      "redirect_uri"
-    ).value =
-      params.get("redirect_uri");
+    document.getElementById("redirect_uri").value = params.get("redirect_uri");
 
-    document.getElementById(
-      "state"
-    ).value =
-      params.get("state");
+    document.getElementById("state").value = params.get("state");
 
   </script>
 </body>

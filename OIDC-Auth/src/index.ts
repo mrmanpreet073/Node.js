@@ -11,6 +11,7 @@ import { usersTable } from "./db/schema.js";
 import { PRIVATE_KEY, PUBLIC_KEY } from "./utils/cert.js";
 import type { JWTClaims } from "./utils/jwtTypes.js";
 import { oauthClientsTable } from "./db/schema2.js";
+import { log } from "console";
 
 
 
@@ -169,265 +170,274 @@ app.post(
 // OAuth2 Authorization Endpoint
 // ======================================================
 
-app.get( "/o/authorize",async (  req: Request,  res: Response) => {
+app.get("/o/authorize", async (req: Request, res: Response) => {
 
-    const {
-      client_id,
-      redirect_uri,
-      response_type
-    } = req.query;
+  const {
+    client_id,
+    redirect_uri,
+    response_type
+  } = req.query;
 
-    // ============================
-    // Basic Validation
-    // ============================
+  // ============================
+  // Basic Validation
+  // ============================
 
-    if (!client_id || !redirect_uri || response_type !== "code") {
+  if (!client_id || !redirect_uri || response_type !== "code") {
 
-      return res.status(400).send(
-        "Invalid OAuth request"
-      );
-    }
-
-    // ============================
-    // Find Client
-    // ============================
-
-    const [client] = await db
-      .select()
-      .from(oauthClientsTable)
-      .where(
-        eq(
-          oauthClientsTable.clientId,
-          String(client_id)
-        )
-      )
-      .limit(1);
-
-    if (!client) {
-
-      return res.status(400).send(
-        "Invalid client"
-      );
-    }
-
-    // ============================
-    // Validate Redirect URI
-    // ============================
-
-    if (
-      client.redirectUri !==
-      redirect_uri
-    ) {
-
-      return res.status(400).send(
-        "Invalid redirect URI"
-      );
-    }
-
-    // ============================
-    // Show Login Page
-    // ============================
-
-    return res.sendFile("login.html",{root: "./public"});
+    return res.status(400).send(
+      "Invalid OAuth request"
+    );
   }
+
+  // ============================
+  // Find Client
+  // ============================
+
+  const [client] = await db
+    .select()
+    .from(oauthClientsTable)
+    .where(
+      eq(
+        oauthClientsTable.clientId,
+        String(client_id)
+      )
+    )
+    .limit(1);
+
+  if (!client) {
+
+    return res.status(400).send(
+      "Invalid client"
+    );
+  }
+
+  // ============================
+  // Validate Redirect URI
+  // ============================
+
+  if (
+    client.redirectUri !==
+    redirect_uri
+  ) {
+
+    return res.status(400).send(
+      "Invalid redirect URI"
+    );
+  }
+
+  // ============================
+  // Show Login Page
+  // ============================
+
+  return res.sendFile("login.html", { root: "./public" });
+}
 );
 
 // ======================================================
 // OAuth2 Login + Authorization Code Generation
 // ======================================================
 
-app.post(
-  "/o/authorize",
-  async (req: Request, res: Response) => {
+app.post("/o/authorize", async (req: Request, res: Response) => {
 
-    const {
-      email,
-      password,
-      client_id,
-      redirect_uri,
-      state
-    } = req.body;
+  const {
+    email,
+    password,
+    client_id,
+    redirect_uri,
+    state
+  } = req.body;
 
-    if (
-      !email ||
-      !password ||
-      !client_id ||
-      !redirect_uri
-    ) {
-      return res.status(400).send(
-        "Missing required fields"
-      );
-    }
-
-    const [user] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email))
-      .limit(1);
-
-    if (!user) {
-      return res.status(401).send(
-        "User not found"
-      );
-    }
-
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password!
+  if (
+    !email ||
+    !password ||
+    !client_id ||
+    !redirect_uri
+  ) {
+    return res.status(400).send(
+      "Missing required fields"
     );
-
-    if (!isMatch) {
-      return res.status(401).send(
-        "Invalid credentials"
-      );
-    }
-
-    // Generate Authorization Code
-
-    const code = crypto
-      .randomBytes(32)
-      .toString("hex");
-
-    authorizationCodes.set(code, {
-      code,
-      userId: user.id,
-      clientId: client_id,
-      redirectUri: redirect_uri,
-      expiresAt:
-        Date.now() + 1000 * 60 * 5
-    });
-
-    // Redirect back to client
-
-    const redirectURL =
-      `${redirect_uri}?code=${code}&state=${state}`;
-
-    return res.redirect(redirectURL);
   }
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+
+  if (!user) {
+    return res.status(401).send(
+      "User not found"
+    );
+  }
+
+  const isMatch = await bcrypt.compare(
+    password,
+    user.password!
+  );
+
+  if (!isMatch) {
+    return res.status(401).send(
+      "Invalid credentials"
+    );
+  }
+
+  // Generate Authorization Code
+
+  const code = crypto
+    .randomBytes(32)
+    .toString("hex");
+    
+    console.log("Generated Authorization Code:", code);
+
+
+  authorizationCodes.set(code, {
+    code,
+    userId: user.id,
+    clientId: client_id,
+    redirectUri: redirect_uri,
+    expiresAt:
+      Date.now() + 1000 * 60 * 5
+  });
+
+
+  // Redirect back to client
+
+  const redirectURL =
+    `${redirect_uri}?code=${code}&state=${state}`;
+
+  // console.log(redirectURL);
+
+  return res.redirect(redirectURL);
+}
 );
 
 // ======================================================
 // OAuth2 Token Endpoint
 // ======================================================
 
-app.post(
-  "/o/token",
-  async (req: Request, res: Response) => {
+app.post("/o/token", async (req: Request, res: Response) => {
 
-    const {
-      code,
-      client_id,
-      redirect_uri,
-      grant_type
-    } = req.body;
+  const {
+    code,
+    client_id,
+    redirect_uri,
+    grant_type
+  } = req.body;
 
-    if (
-      grant_type !== "authorization_code"
-    ) {
-      return res.status(400).json({
-        error: "unsupported_grant_type"
-      });
-    }
+  console.log("Token Request:", {
+    code,
+    client_id,
+    redirect_uri,
+    grant_type
+  });
+console.log("Current Authorization Codes:", Array.from(authorizationCodes.values()));
+  if (grant_type !== "authorization_code") {
+    return res.status(400).json({
+      error: "unsupported_grant_type"
+    });
+  }
 
-    const storedCode =
-      authorizationCodes.get(code);
+  const storedCode=authorizationCodes.get(code);// code apna hi he ??
 
-    if (!storedCode) {
-      return res.status(400).json({
-        error: "invalid_code"
-      });
-    }
+  if (!storedCode) {
+    return res.status(400).json({
+      error: "invalid_code"
+    });
+  }
 
-    // Expired
+  // Expired
 
-    if (storedCode.expiresAt < Date.now()) {
-
-      authorizationCodes.delete(code);
-
-      return res.status(400).json({
-        error: "authorization_code_expired"
-      });
-    }
-
-    // Validate Client
-
-    if (
-      storedCode.clientId !== client_id ||
-      storedCode.redirectUri !== redirect_uri
-    ) {
-      return res.status(400).json({
-        error: "invalid_client"
-      });
-    }
-
-    // One Time Use
+  if (storedCode.expiresAt < Date.now()) {
 
     authorizationCodes.delete(code);
 
-    // Fetch User
+    return res.status(400).json({
+      error: "authorization_code_expired"
+    });
 
-    const [user] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, storedCode.userId))
-      .limit(1);
+  }
 
-    if (!user) {
-      return res.status(404).send(
-        "User not found"
-      );
-    }
+  // Validate Client
 
-    // JWT Claims
-
-    const now = Math.floor(
-      Date.now() / 1000
-    );
-
-    const claims: JWTClaims = {
-      iss: ISSUER,
-      sub: user.id,
-      aud: client_id,
-      email: user.email,
-      email_verified: String(user.emailVerified),
-      iat: now,
-      exp: now + 3600,
-      given_name:user.firstName ?? "",
-      family_name:user.lastName ?? undefined,
-      name: [ user.firstName,user.lastName].filter(Boolean).join(" "),
-      picture: user.profileImageURL ?? undefined
-    };
-
-    // Access Token
-
-    const accessToken = JWT.sign(
-      claims,
-      PRIVATE_KEY,
-      {
-        algorithm: "RS256"
-      }
-    );
-
-    // ID Token
-
-    const idToken = JWT.sign(
-      claims,
-      PRIVATE_KEY,
-      {
-        algorithm: "RS256"
-      }
-    );
-
-    return res.json({
-      access_token: accessToken,
-
-      token_type: "Bearer",
-
-      expires_in: 3600,
-
-      id_token: idToken
+  if (
+    storedCode.clientId !== client_id ||
+    storedCode.redirectUri !== redirect_uri
+  ) {
+    return res.status(400).json({
+      error: "invalid_client"
     });
   }
+
+  // One Time Use
+
+  authorizationCodes.delete(code);
+
+  // Fetch User
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, storedCode.userId))
+    .limit(1);
+
+  if (!user) {
+    return res.status(404).send(
+      "User not found"
+    );
+  }
+
+  // JWT Claims
+
+  const now = Math.floor(
+    Date.now() / 1000
+  );
+
+  const claims: JWTClaims = {
+    iss: ISSUER,
+    sub: user.id,
+    aud: client_id,
+    email: user.email,
+    email_verified: String(user.emailVerified),
+    iat: now,
+    exp: now + 3600,
+    given_name: user.firstName ?? "",
+    family_name: user.lastName ?? undefined,
+    name: [user.firstName, user.lastName].filter(Boolean).join(" "),
+    picture: user.profileImageURL ?? undefined
+  };
+
+  // Access Token
+
+  const accessToken = JWT.sign(claims,PRIVATE_KEY,{  algorithm: "RS256"});
+
+  // ID Token
+
+  const idToken = JWT.sign(claims, PRIVATE_KEY,{  algorithm: "RS256"});
+
+  const refreshToken =
+  crypto
+    .randomBytes(64)
+    .toString("hex");
+
+// Store In Cookie
+
+res.cookie( "refresh_token", refreshToken,
+  {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax", //Protects against many CSRF attacks.
+    maxAge:1000 * 60 * 60 * 24 * 7 // 7 days
+  }
+);
+
+
+  return res.json({
+    access_token: accessToken,
+    token_type: "Bearer",
+    id_token: idToken,
+    expires_in: 3600,
+  });
+}
 );
 
 // ======================================================
@@ -504,84 +514,84 @@ app.get(
   }
 );
 
-app.get("/o/register-client",async (req: Request, res: Response) => {
+app.get("/o/register-client", async (req: Request, res: Response) => {
   return res.sendFile("register.html", {
     root: "./public"
   });
 })
-app.post("/o/register-client",async (req: Request, res: Response) => {
+app.post("/o/register-client", async (req: Request, res: Response) => {
 
-    try {
+  try {
 
-      const {
-        appName,
-        redirectUri,
-        scope,
-        responseType
-      } = req.body;
+    const {
+      appName,
+      redirectUri,
+      scope,
+      responseType
+    } = req.body;
 
-      // ====================================
-      // Validation
-      // ====================================
+    // ====================================
+    // Validation
+    // ====================================
 
-      if (!appName || !redirectUri) {
+    if (!appName || !redirectUri) {
 
-        return res.status(400).json({
-          message:
-            "App name and redirect URI are required"
-        });
-      }
-
-      // ====================================
-      // Generate Client Credentials
-      // ====================================
-
-      const clientId =
-        crypto.randomBytes(16).toString("hex");
-
-      const clientSecret =
-        crypto.randomBytes(32).toString("hex");
-
-      // ====================================
-      // Save Client In Database
-      // ====================================
-
-      await db.insert(oauthClientsTable)
-        .values({
-          appName,
-          clientId,
-          clientSecret,
-          redirectUri,
-          scope:scope || "openid profile email",
-          responseType:
-          responseType || "code"
-        });
-
-      // ====================================
-      // Return Credentials
-      // ====================================
-
-      return res.status(201).json({
-
-        message:"OAuth client registered successfully",
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        scope:scope || "openid profile email",
-        response_type:
-        responseType || "code"
-      });
-
-    } catch (error) {
-
-      console.log(error);
-
-      return res.status(500).json({
+      return res.status(400).json({
         message:
-          "Internal server error"
+          "App name and redirect URI are required"
       });
     }
+
+    // ====================================
+    // Generate Client Credentials
+    // ====================================
+
+    const clientId =
+      crypto.randomBytes(16).toString("hex");
+
+    const clientSecret =
+      crypto.randomBytes(32).toString("hex");
+
+    // ====================================
+    // Save Client In Database
+    // ====================================
+
+    await db.insert(oauthClientsTable)
+      .values({
+        appName,
+        clientId,
+        clientSecret,
+        redirectUri,
+        scope: scope || "openid profile email",
+        responseType:
+          responseType || "code"
+      });
+
+    // ====================================
+    // Return Credentials
+    // ====================================
+
+    return res.status(201).json({
+
+      message: "OAuth client registered successfully",
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      scope: scope || "openid profile email",
+      response_type:
+        responseType || "code"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return res.status(500).json({
+      message:
+        "Internal server error"
+    });
   }
+}
 );
 
 // ======================================================
