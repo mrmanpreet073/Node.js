@@ -1,17 +1,26 @@
-import express from "express";
-import dotenv from "dotenv";
+import type { Application, Request, Response } from "express";
+import express from 'express'
+import "dotenv/config";
 import { db } from "./db/index.js";
 import { users } from "./db/schema.js";
-dotenv.config();
+import authRouter from "./modules/auth/auth.routes.js";
 
-const app = express();
+const app: Application = express();
 app.use(express.json());
 
-app.get("/users", async (req, res) => {
+
+// Routers 
+app.use("/auth",authRouter);
+
+
+
+app.get("/users", async (req: Request, res: Response): Promise<void> => {
   const allUsers = await db.select().from(users);
   res.json(allUsers);
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
+const PORT = process.env.PORT ?? 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
