@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>authlayers - Architecture & Auth</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0b1319;
+            --bg-card: #111c24;
+            --accent-green: #2ecc71;
+            --accent-teal: #1abc9c;
+            --text-heading: #5cdbb5;
+            --text-main: #9cb1c2;
+            --text-white: #ffffff;
+            --border: #1a2a36;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding: 0 24px; }
+        
+        /* Navbar */
+        nav {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0;
+        }
+        .logo { display: flex; align-items: center; gap: 8px; color: var(--text-heading); font-size: 1.4rem; font-weight: 700; }
+        .nav-actions { display: flex; gap: 16px; }
+        .btn {
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-outline { background: transparent; border: 1px solid var(--text-heading); color: var(--text-heading); }
+        .btn-outline:hover { background: rgba(92, 219, 181, 0.1); }
+        .btn-solid { background: var(--text-heading); border: none; color: var(--bg-dark); }
+        .btn-solid:hover { background: #4ecaa4; opacity: 0.9; }
+
+        /* Main Hero Headers */
+        header { max-width: 1100px; margin: 40px auto 20px auto; }
+        .hero-title { font-size: 2.2rem; color: var(--text-heading); font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+        .hero-subtitle { font-size: 1.1rem; line-height: 1.6; max-width: 850px; }
+
+        /* Grid Layout */
+        .grid { max-width: 1100px; margin: 40px auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .card-icon { font-size: 1.8rem; margin-bottom: 20px; }
+        .card-title { color: var(--text-heading); font-size: 1.3rem; margin-bottom: 14px; font-weight: 600; }
+        .card-desc { font-size: 0.95rem; line-height: 1.6; }
+        .card-desc strong { color: var(--text-white); }
+        .card-full { grid-column: 1 / -1; }
+        pre { background: var(--bg-dark); border: 1px solid var(--border); padding: 16px; border-radius: 8px; color: var(--text-heading); font-family: monospace; overflow-x: auto; margin-top: 12px; }
+
+        /* Auth Overlay Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 19, 25, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 100%; max-width: 420px; relative: position; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .modal-header h3 { color: var(--text-white); font-size: 1.5rem; }
+        .close-btn { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-main); }
+        .form-group input { width: 100%; padding: 12px 16px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: var(--text-white); font-size: 0.95rem; outline: none; }
+        .form-group input:focus { border-color: var(--text-heading); }
+        .submit-btn { width: 100%; padding: 14px; background: var(--text-heading); border: none; border-radius: 8px; color: var(--bg-dark); font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .switch-form { text-align: center; margin-top: 20px; font-size: 0.9rem; }
+        .switch-form span { color: var(--text-heading); cursor: pointer; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><i class="fa-solid fa-moon"></i> authlayers</div>
+        <div class="nav-actions">
+            <button class="btn btn-outline" onclick="openAuth('login')">Log in</button>
+            <button class="btn btn-solid" onclick="openAuth('signup')">Sign up</button>
+        </div>
+    </nav>
+
+    <header>
+        <h1 class="hero-title"><i class="fa-solid fa-house-chimney"></i> Layered architecture • JWT dual-token</h1>
+        <p class="hero-subtitle">Route &rarr; Controller &rarr; Service &rarr; Model — strict separation of concerns, centralized error handling, and secure authentication. Dark mode + responsive UX.</p>
+    </header>
+
+    <main class="grid">
+        <div class="card">
+            <div class="card-icon" style="color: #ff4757;"><i class="fa-solid fa-traffic-light"></i></div>
+            <div class="card-title">Route + DTO</div>
+            <p class="card-desc">Endpoint definitions & validation middleware. Malformed requests never reach business logic, drastically protecting system computing overhead and security layers.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon" style="color: #9b59b6;"><i class="fa-solid fa-gamepad"></i></div>
+            <div class="card-title">Controller</div>
+            <p class="card-desc">Orchestrator between requests/responses & services. Extracts payload targets parameters, utilizing global <strong>try/catch</strong> block schemes to bubble exceptions to the core handler cleanly.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon" style="color: #ff7ff5;"><i class="fa-solid fa-brain"></i></div>
+            <div class="card-title">Service Layer</div>
+            <p class="card-desc">Core business logic: DB queries via Mongoose, automated JWT generations, token refreshing arrays, and email communication integrations. Completely decoupled and framework-agnostic.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon" style="color: #e67e22;"><i class="fa-solid fa-box"></i></div>
+            <div class="card-title">Data Access (Models)</div>
+            <p class="card-desc">Handles exact DB architecture boundaries via schema mappings. Enforces <strong>pre-save structural lifecycle hooks</strong> to run critical encryption hashing models directly inside the safe storage level.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-icon" style="color: #2ecc71;"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="card-title">Security Implementation</div>
+            <p class="card-desc">Uses short-lived validation <strong>Access Tokens</strong> along with durable <strong>Refresh Tokens</strong> safely locked in isolated <code>HttpOnly</code>, <code>Secure</code>, and <code>SameSite=Strict</code> cookie structures to completely negate XSS and CSRF strategies.</p>
+        </div>
+
+        <div class="card card-full">
+            <div class="card-icon" style="color: #3498db;"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="card-title">Reliability & Standardized Structure</div>
+            <p class="card-desc">Decoupled exceptions utilize a specialized <code>apiError</code> processing constructor. Successful communications conform directly to a predictive structural format contract:</p>
+<pre>
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": { ... }
+}</pre>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalTitle">Account Access</h3>
+                <button class="close-btn" onclick="closeAuth()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="authForm" onsubmit="submitAction(event)">
+                <div class="form-group" id="nameGroup">
+                    <label>Full Name</label>
+                    <input type="text" id="authName" placeholder="Your Name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="authEmail" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">Proceed</button>
+            </form>
+
+            <div class="switch-form" id="switchPrompt"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'login';
+        const modal = document.getElementById('authModal');
+
+        function openAuth(mode) {
+            currentMode = mode;
+            modal.style.display = 'flex';
+            
+            if (mode === 'login') {
+                document.getElementById('modalTitle').innerText = 'Welcome Back';
+                document.getElementById('nameGroup').style.display = 'none';
+                document.getElementById('submitBtn').innerText = 'Log In';
+                document.getElementById('switchPrompt').innerHTML = `Don't have an account? <span onclick="openAuth('signup')">Sign up</span>`;
+            } else {
+                document.getElementById('modalTitle').innerText = 'Create Account';
+                document.getElementById('nameGroup').style.display = 'block';
+                document.getElementById('submitBtn').innerText = 'Get Started';
+                document.getElementById('switchPrompt').innerHTML = `Already registered? <span onclick="openAuth('login')">Log in</span>`;
+            }
+        }
+
+        function closeAuth() {
+            modal.style.display = 'none';
+        }
+
+        // Close when clicking empty space outside the modal wrapper card
+        window.onclick = function(event) {
+            if (event.target == modal) closeAuth();
+        }
+
+        function submitAction(event) {
+            event.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            alert(`authlayers execution:\nMode: [${currentMode.toUpperCase()}]\nPiping target parameters down via DTO Layer validation validation mechanisms for: ${email}`);
+            closeAuth();
+        }
+    </script>
+</body>
+</html>
