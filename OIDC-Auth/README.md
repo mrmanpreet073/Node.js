@@ -1,0 +1,178 @@
+# OIDC Authorization Server
+
+A custom **OAuth 2.0 + OpenID Connect (OIDC)** Authorization Server built from scratch with Node.js and TypeScript — similar to how Google Auth or Auth0 works internally.
+
+> Most developers just plug in Auth0 or Firebase Auth. This project builds the auth server itself.
+
+---
+
+## What is this?
+
+When you click **"Login with Google"** on any website:
+1. The website redirects you to Google
+2. Google authenticates you
+3. Google returns a token to the website
+
+**This project is the "Google" part** — a server that authenticates users and issues tokens that other apps can trust.
+
+---
+
+## How it Works
+
+```
+Client App → /o/authorize → User Logs In → Auth Code
+Auth Code  → /o/token    → Access Token + ID Token + Refresh Token
+Access Token → /o/userinfo → User Profile
+```
+
+### Full Flow
+
+| Step | What Happens |
+|------|-------------|
+| 1 | Client registers and gets `client_id` + `client_secret` |
+| 2 | User clicks login → redirected to `/o/authorize` |
+| 3 | User enters email & password |
+| 4 | Server validates credentials with bcrypt |
+| 5 | Server generates a one-time **Authorization Code** |
+| 6 | Client exchanges code → `POST /o/token` |
+| 7 | Server returns `access_token`, `id_token`, `refresh_token` |
+| 8 | Client uses `access_token` to call protected APIs |
+| 9 | When token expires → `POST /o/refresh` → new token |
+
+---
+
+## API Endpoints
+
+### OIDC Discovery
+| Endpoint | Description |
+|----------|-------------|
+| `GET /.well-known/openid-configuration` | Server metadata — all endpoint URLs |
+| `GET /.well-known/jwks.json` | Public key in JWK format for token verification |
+
+### Auth Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/o/authorize` | GET | Shows login page (validates client_id) |
+| `/o/authorize` | POST | Validates user, returns auth code |
+| `/o/token` | POST | Exchanges auth code for tokens |
+| `/o/userinfo` | GET | Returns user profile (requires Bearer token) |
+| `/o/refresh` | POST | Issues new access token using refresh token cookie |
+
+### User Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/signup` | GET | Signup page |
+| `/signup` | POST | Register new user |
+
+---
+
+## Tokens Explained
+
+| Token | Lifetime | Stored In | Purpose |
+|-------|----------|-----------|---------|
+| Authorization Code | 5 minutes | Server memory | One-time proof of login |
+| Access Token (JWT) | 1 hour | localStorage | Call protected APIs |
+| ID Token (JWT) | 1 hour | localStorage | User identity info |
+| Refresh Token | 7 days | httpOnly cookie | Get new access token |
+
+---
+
+## Security
+
+- **RS256** — tokens signed with RSA private key, verified with public key
+- **bcrypt** — passwords never stored in plain text
+- **httpOnly cookie** — refresh token hidden from JavaScript (XSS safe)
+- **One-time auth codes** — deleted immediately after use
+- **State parameter** — prevents CSRF attacks
+- **Public JWKS endpoint** — any client can verify tokens without knowing the private key
+
+---
+
+## Tech Stack
+
+- **Runtime** — Node.js
+- **Language** — TypeScript
+- **Framework** — Express.js
+- **Database** — PostgreSQL
+- **ORM** — Drizzle ORM
+- **JWT** — jsonwebtoken
+- **JWK** — node-jose
+- **Password Hashing** — bcrypt
+
+---
+
+## Project Structure
+
+```
+├── src/
+│   ├── index.ts          # Main server & all routes
+│   ├── db/
+│   │   ├── index.ts      # Database connection
+│   │   └── schema.ts     # Drizzle table definitions
+│   └── utils/
+│       ├── cert.ts       # Load RSA keys from files
+│       └── jwtTypes.ts   # JWT claims type definition
+├── cert/
+│   ├── private-key.pem   # RSA private key (sign tokens)
+│   └── public-key.pub    # RSA public key (verify tokens)
+├── public/               # Static HTML files
+│   ├── index.html
+│   ├── login.html
+│   ├── signup.html
+│   └── callback.html
+├── tsconfig.json
+└── package.json
+```
+
+---
+
+## Getting Started
+
+### 1. Install dependencies
+```bash
+npm install
+```
+
+### 2. Generate RSA keys
+```bash
+mkdir cert
+openssl genrsa -out cert/private-key.pem 2048
+openssl rsa -in cert/private-key.pem -pubout -out cert/public-key.pub
+```
+
+### 3. Setup environment
+```bash
+cp .env.example .env
+# Add your DATABASE_URL
+```
+
+### 4. Run database migrations
+```bash
+npm run db:migrate
+```
+
+### 5. Start the server
+```bash
+npm run dev
+```
+
+Server runs on `http://localhost:5000`
+
+---
+
+## Environment Variables
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/oidc_auth
+PORT=5000
+```
+
+---
+
+## Key Concepts Learned
+
+- How OAuth 2.0 Authorization Code Flow works internally
+- Difference between OIDC and OAuth 2.0
+- Why RS256 is better than HS256 for distributed systems
+- How JWK and JWKS endpoints work
+- Why refresh tokens go in httpOnly cookies and not localStorage
