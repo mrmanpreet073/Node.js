@@ -56,21 +56,21 @@ app.get("/", (_: Request, res: Response) => {
 // OpenID Configuration
 // ======================================================
 
-app.get( "/.well-known/openid-configuration",(_: Request, res: Response) => {
+app.get("/.well-known/openid-configuration", (_: Request, res: Response) => {
 
-    return res.json({
-      issuer: ISSUER,
-      authorization_endpoint:`${ISSUER}/o/authorize`,
-      token_endpoint: `${ISSUER}/o/token`,
-      userinfo_endpoint: `${ISSUER}/o/userinfo`,
-      jwks_uri:`${ISSUER}/.well-known/jwks.json`,
-      response_types_supported: ["code"],
-      subject_types_supported: ["public"],
-      id_token_signing_alg_values_supported: ["RS256"],
-      scopes_supported: ["openid", "profile", "email"],
-      token_endpoint_auth_methods_supported: [ "client_secret_post"]
-    });
-  }
+  return res.json({
+    issuer: ISSUER,
+    authorization_endpoint: `${ISSUER}/o/authorize`,
+    token_endpoint: `${ISSUER}/o/token`,
+    userinfo_endpoint: `${ISSUER}/o/userinfo`,
+    jwks_uri: `${ISSUER}/.well-known/jwks.json`,
+    response_types_supported: ["code"],
+    subject_types_supported: ["public"],
+    id_token_signing_alg_values_supported: ["RS256"],
+    scopes_supported: ["openid", "profile", "email"],
+    token_endpoint_auth_methods_supported: ["client_secret_post"]
+  });
+}
 );
 
 // ======================================================
@@ -93,49 +93,49 @@ app.get("/signup", (_: Request, res: Response) => {
 // Signup
 // ======================================================
 
-app.post( "/signup",async (req: Request, res: Response) => {
+app.post("/signup", async (req: Request, res: Response) => {
 
-    const {
-      firstName,
-      lastName,
-      email,
-      password
-    } = req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    password
+  } = req.body;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !password
-    ) {
-      return res.status(400).json({
-        message: "All fields are required"
-      });
-    }
-
-    const [existingUser] = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email))
-      .limit(1);
-
-    if (existingUser) {
-      return res.status(400).send(
-        "User already exists"
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(password,10);
-
-    await db.insert(usersTable).values({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password
+  ) {
+    return res.status(400).json({
+      message: "All fields are required"
     });
-
-    return res.send("User registered");
   }
+
+  const [existingUser] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, email))
+    .limit(1);
+
+  if (existingUser) {
+    return res.status(400).send(
+      "User already exists"
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await db.insert(usersTable).values({
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword
+  });
+
+  return res.send("User registered");
+}
 );
 
 // ======================================================
@@ -413,58 +413,70 @@ app.post("/o/token", async (req: Request, res: Response) => {
 // UserInfo Endpoint
 // ======================================================
 
-app.get( "/o/userinfo",(req: Request, res: Response) => {
+app.get("/o/userinfo", (req: Request, res: Response) => {
 
-    const authHeader =
-      req.headers.authorization;
+  const authHeader =
+    req.headers.authorization;
 
-    if (!authHeader) {
-      return res.status(401).send(
-        "Authorization header missing"
-      );
-    }
-
-    if (
-      !authHeader.startsWith("Bearer ")
-    ) {
-      return res.status(401).send(
-        "Invalid authorization format"
-      );
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).send(
-        "Token missing"
-      );
-    }
-
-    try {
-
-      const decoded = JWT.verify(token,PUBLIC_KEY,{algorithms: ["RS256"]} );
-
-      return res.json(decoded);
-
-    } catch (error) {
-
-      return res.status(401).send(
-        "Invalid token"
-      );
-    }
+  if (!authHeader) {
+    return res.status(401).send(
+      "Authorization header missing"
+    );
   }
+
+  if (
+    !authHeader.startsWith("Bearer ")
+  ) {
+    return res.status(401).send(
+      "Invalid authorization format"
+    );
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send(
+      "Token missing"
+    );
+  }
+
+  try {
+
+    const decoded = JWT.verify(token, PUBLIC_KEY, { algorithms: ["RS256"] });
+
+    return res.json(decoded);
+
+  } catch (error) {
+
+    return res.status(401).send(
+      "Invalid token"
+    );
+  }
+}
 );
 
 // ======================================================
 // JWKS Endpoint
 // ======================================================
 
-app.get( "/.well-known/jwks.json",async (_: Request, res: Response) => {
+app.get("/.well-known/jwks.json", async (_: Request, res: Response) => {
 
-    const key = await jose.JWK.asKey( PUBLIC_KEY, "pem");
+  const key = await jose.JWK.asKey(PUBLIC_KEY, "pem");
 
-    return res.json({ keys: [key.toJSON()]});
-  }
+  return res.json({ keys: [key.toJSON()] });
+}
+
+
+  //   or====================================================
+
+  //   app.get("/.well-known/jwks.json", (_, res) => {
+  //   const key = crypto.createPublicKey(PUBLIC_KEY);
+  //   const jwk = key.export({ format: "jwk" });
+  //   return res.json({ keys: [jwk] });
+  // });
+
+
+
 );
 
 app.get("/o/register-client", async (req: Request, res: Response) => {
@@ -624,8 +636,8 @@ app.post("/o/refresh", async (req: Request, res: Response) => {
 
   return res.json({
 
-    access_token:accessToken,
-    token_type:"Bearer",
+    access_token: accessToken,
+    token_type: "Bearer",
     expires_in: 3600
   });
 }
