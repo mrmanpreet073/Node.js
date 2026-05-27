@@ -25,7 +25,7 @@ const register = async (userData) => {
     const { rawToken, hashedToken } = generateResetToken();
 
     // 3. Create User
-    console.time("DB_Register_Time"); // Start timer
+    // console.time("DB_Register_Time"); // Start timer
     const user = await User.create({
         name,
         email,
@@ -33,7 +33,7 @@ const register = async (userData) => {
         role,
         verificationToken: hashedToken
     });
-    console.timeEnd("DB_Register_Time"); // End timer and log result
+    // console.timeEnd("DB_Register_Time"); // End timer and log result
     // 4. Send Email (Try/Catch is good here)
     try {
         await sendVerificationEmail(email, rawToken);
