@@ -29,10 +29,16 @@ const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
 }
 const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await authService.login(req.body);
-        
+        const { user, accessToken, refreshToken } = await authService.login(req.body);
 
-        ApiResponse.ok(res, "Login Successful", result)
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+// NOTE SEND ACCESS TOKEN AS BEARER TOKEN 
+        ApiResponse.ok(res, "Login SuccessFull", { user, accessToken });
 
     } catch (error) {
         next(error)
@@ -40,4 +46,4 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 
-export { signUp , verifyEmail,login}
+export { signUp, verifyEmail, login }
