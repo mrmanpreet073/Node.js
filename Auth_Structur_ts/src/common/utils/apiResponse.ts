@@ -28,11 +28,7 @@ class ApiResponse {
   // - Registration
   // - Insert operations
   // =========================================================
-  static created<T>(
-    res: Response,
-    message: string,
-    data?: T
-  ): Response {
+  static created<T>(res: Response,message: string,data?: T): Response {
     return res.status(201).json({
       success: true,
       message,

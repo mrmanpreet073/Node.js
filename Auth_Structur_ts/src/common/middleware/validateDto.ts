@@ -3,7 +3,7 @@ import apiError from "../utils/apiError.js";
 
 type DTOValidator = {
     validate: (data: unknown) => {
-        errors?: string[];
+        errors?: string[] | null;
         value: unknown;
     };
 };

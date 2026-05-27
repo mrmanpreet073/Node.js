@@ -7,17 +7,13 @@ import authRouter from "./modules/auth/auth.routes.js";
 
 const app: Application = express();
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public")); // Serve static files from the "public" directory
 
 // Routers 
 app.use("/auth",authRouter);
 
 
-
-app.get("/users", async (req: Request, res: Response): Promise<void> => {
-  const allUsers = await db.select().from(users);
-  res.json(allUsers);
-});
 
 const PORT = process.env.PORT ?? 3000;
 
