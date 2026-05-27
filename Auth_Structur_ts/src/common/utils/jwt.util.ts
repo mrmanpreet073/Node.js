@@ -7,7 +7,7 @@ const REFRESH_SECRET: Secret = process.env.JWT_REFRESH_SECRET as string;
 
 // Create raw token and hashed token
 
-const generateResetToken = (): { rawToken: string; hashedToken: string; } => {
+const generateRandomToken = (): { rawToken: string; hashedToken: string; } => {
 
     const rawToken = crypto.randomBytes(32).toString("hex");
 
@@ -44,7 +44,7 @@ const verifyRefreshToken = (token: string): string | JwtPayload => {
 };
 
 export {
-    generateResetToken,
+    generateRandomToken,
     generateAccessToken,
     generateRefreshToken,
     verifyAccessToken,
