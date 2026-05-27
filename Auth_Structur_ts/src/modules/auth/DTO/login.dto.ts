@@ -2,7 +2,7 @@ import type { ObjectSchema } from "joi";
 import joi from "joi"
 import BaseDto from "../../../common/DTO/baseDto.js";
 
-type LoginDtoType = {
+export type LoginDtoType = {
     email: string;
     password: string;
 };

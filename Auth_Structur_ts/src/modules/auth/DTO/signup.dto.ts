@@ -2,11 +2,11 @@ import type { ObjectSchema } from "joi";
 import joi from "joi"
 import BaseDto from "../../../common/DTO/baseDto.js";
 
-type signUpDtoType = {
+export type signUpDtoType = {
     name: string;
     email: string;
     password: string;
-    role: string;
+    role?: "customer" | "seller";
 };
 
 class signUpDto extends BaseDto {
@@ -25,7 +25,7 @@ class signUpDto extends BaseDto {
         password: joi.string()
             .min(8)
             .pattern(/(?=.*[A-Z])(?=.*\d)/)
-            .message( "Password must contain at least one uppercase letter and one digit",)
+            .message("Password must contain at least one uppercase letter and one digit",)
             .required(),
 
         role: joi.string()
