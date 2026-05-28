@@ -19,7 +19,7 @@ const sendEmail = async (to: string, subject: string, html: string) => {
   });
 };
 
-export const sendVerificationEmail = async (email: string, token: string) => {
+ const sendVerificationEmail = async (email: string, token: string) => {
   const url = `${process.env.CLIENT_URL}/auth/verify-email/${token}`;
   await sendEmail(
     email,
@@ -27,3 +27,14 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     `<h2>Welcome!</h2><p>Click <a href="${url}">here</a> to verify your email.</p>`,
   );
 };
+
+const sendResetPasswordEmail = async (email:string,token:string) => {
+  const url =`${process.env.CLIENT_URL}/auth/reset-password/${token}`;
+    await sendEmail(
+    email,
+    "Reset Password",
+    `<h2>Welcome!</h2><p>Click <a href="${url}">here</a> to Reset your password.</p>`,
+  );
+}
+
+export{sendVerificationEmail,sendResetPasswordEmail}
