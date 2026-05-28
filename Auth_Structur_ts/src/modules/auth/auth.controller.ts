@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import * as authService from "./auth.service.js"
 import ApiResponse from "../../common/utils/apiResponse.js";
+import ApiError from "../../common/utils/apiError.js";
 
 
 
@@ -37,7 +38,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-// NOTE SEND ACCESS TOKEN AS BEARER TOKEN 
+        // NOTE SEND ACCESS TOKEN AS BEARER TOKEN 
         ApiResponse.ok(res, "Login SuccessFull", { user, accessToken });
 
     } catch (error) {
@@ -45,5 +46,89 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
 
-export { signUp, verifyEmail, login }
+        const userId = req.user.id;
+
+        const result = await authService.logout(userId);
+
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict"
+        });
+
+        ApiResponse.ok(res, "Logout successful", result);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const token = req.cookies.refreshToken;
+        if (!token) {
+            throw ApiError.badRequest("Refresh token missing");
+        }
+
+        const result = await authService.refresh(token);
+
+        res.cookie("refreshToken", result.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        ApiResponse.ok(
+            res,
+            "Token refreshed successfully",
+            result
+        );
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const forgotPassword = async (req: Request,res: Response,next: NextFunction) => {
+
+    try {
+
+        const { email } = req.body;
+
+        const result =await authService.forgotPassword(email);
+
+        ApiResponse.ok(
+            res,
+            "Password reset email sent",
+            result
+        );
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    
+    try {
+
+        const token = req.params.token as string;
+
+        const { password } = req.body;
+
+        const result = await authService.resetPassword(token,password );
+
+        ApiResponse.ok( res, "Password reset successful", result);
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export { signUp, verifyEmail, login, logout, refreshToken ,forgotPassword,resetPassword}
