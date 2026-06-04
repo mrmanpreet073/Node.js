@@ -112,6 +112,31 @@
             outline: 2px solid #a5b4fc;
             outline-offset: 2px;
         }
+
+      /* Toast */
+#toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 250px;
+    max-width: 350px;
+    padding: 12px 16px;
+    background: #ef4444;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+#toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
     </style>
 </head>
 
@@ -120,13 +145,26 @@
         <h1>Checkboxes.io</h1>
         <p class="subtitle">A real-time, rate-limited experiment in massive concurrency.</p>
     </div>
-
+    <div id="toast"></div>
     <div id="container"></div>
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
 
         const socket = io();
+
+        socket.on("server:error", (data) => {
+            const toast = document.getElementById("toast");
+
+            toast.textContent = data.error;
+            toast.classList.add("show");
+
+            clearTimeout(toast.timeout);
+
+            toast.timeout = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        });
 
         socket.on("connect", () => {
             console.log("Socket Connected A:", socket.id);
