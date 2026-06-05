@@ -501,14 +501,14 @@
         id="loginBtn"
         class="btn login-btn"
       >
-        Login With OIDC
+        Login 
       </button>
 
       <a
         href="/signup.html"
         class="btn signup-btn"
       >
-        Create Account
+        Signup
       </a>
 
     </div>
@@ -708,32 +708,21 @@
 
   <script>
 
-    const loginBtn =
-      document.getElementById(
-        "loginBtn"
-      );
+    const loginBtn =document.getElementById("loginBtn");
 
-    loginBtn.addEventListener(
-      "click",
-      () => {
+    loginBtn.addEventListener("click",() => {
 
-        const params =
-          new URLSearchParams({
+        const params =new URLSearchParams({
 
-            client_id:
-              "774068bf10b8b92f2a4d7c299bcf3d99",
+            client_id:"8c6314c33bbf29a9edb4ad7937ed9c28",
 
-            redirect_uri:
-              "http://localhost:5000/callback.html",
+            redirect_uri:"https://chatgpt.com",
 
-            response_type:
-              "code",
+            response_type:"code",
 
-            scope:
-              "openid profile email",
+            scope:"openid profile email",
 
-            state:
-              crypto.randomUUID()
+            state:crypto.randomUUID()
           });
 
         window.location.href =
