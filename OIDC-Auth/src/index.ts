@@ -102,6 +102,12 @@ app.post("/signup", async (req: Request, res: Response) => {
     password
   } = req.body;
 
+  const {
+    client_id,
+    redirect_uri,
+    response_type
+  } = req.query;
+
   if (
     !firstName ||
     !lastName ||
@@ -127,14 +133,35 @@ app.post("/signup", async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  await db.insert(usersTable).values({
+  const [user] = await db.insert(usersTable).values({
     firstName,
     lastName,
     email,
     password: hashedPassword
+  }).returning();
+
+  const code = crypto.randomBytes(32).toString("hex");
+
+  // console.log("Generated Authorization Code:", code);
+
+
+  authorizationCodes.set(code, {
+    code,
+    userId: user!.id,
+    clientId: client_id as string,
+    redirectUri: redirect_uri as string,
+    expiresAt: Date.now() + 1000 * 60 * 5
   });
 
-  return res.send("User registered");
+
+  // Redirect back to client
+
+  const redirectURL = `${redirect_uri}?code=${code}&state=${response_type}`;
+
+
+  // console.log(redirectURL);
+
+  return res.redirect(redirectURL);
 }
 );
 
@@ -257,7 +284,7 @@ app.post("/o/authorize", async (req: Request, res: Response) => {
 
   const code = crypto.randomBytes(32).toString("hex");
 
-  console.log("Generated Authorization Code:", code);
+  // console.log("Generated Authorization Code:", code);
 
 
   authorizationCodes.set(code, {
@@ -265,8 +292,7 @@ app.post("/o/authorize", async (req: Request, res: Response) => {
     userId: user.id,
     clientId: client_id,
     redirectUri: redirect_uri,
-    expiresAt:
-      Date.now() + 1000 * 60 * 5
+    expiresAt: Date.now() + 1000 * 60 * 5
   });
 
 
@@ -299,7 +325,9 @@ app.post("/o/token", async (req: Request, res: Response) => {
     redirect_uri,
     grant_type
   });
+
   console.log("Current Authorization Codes:", Array.from(authorizationCodes.values()));
+  
   if (grant_type !== "authorization_code") {
     return res.status(400).json({
       error: "unsupported_grant_type"
@@ -511,11 +539,9 @@ app.post("/o/register-client", async (req: Request, res: Response) => {
     // Generate Client Credentials
     // ====================================
 
-    const clientId =
-      crypto.randomBytes(16).toString("hex");
+    const clientId = crypto.randomBytes(16).toString("hex");
 
-    const clientSecret =
-      crypto.randomBytes(32).toString("hex");
+    const clientSecret = crypto.randomBytes(32).toString("hex");
 
     // ====================================
     // Save Client In Database
@@ -528,8 +554,7 @@ app.post("/o/register-client", async (req: Request, res: Response) => {
         clientSecret,
         redirectUri,
         scope: scope || "openid profile email",
-        responseType:
-          responseType || "code"
+        responseType: responseType || "code"
       });
 
     // ====================================
@@ -543,8 +568,7 @@ app.post("/o/register-client", async (req: Request, res: Response) => {
       client_secret: clientSecret,
       redirect_uri: redirectUri,
       scope: scope || "openid profile email",
-      response_type:
-        responseType || "code"
+      response_type: responseType || "code"
     });
 
   } catch (error) {
