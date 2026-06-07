@@ -12,36 +12,15 @@
 
 export interface JWTClaims {
 
-  // Issuer
-  iss: string;
-
-  // Subject (user id)
-  sub: string;
-
-  // Audience (client id)
-  aud: string;
-
-  // User Email
-  email: string;
-
-  // Email Verification Status
-  email_verified: string;
-
-  // Issued At
-  iat: number;
-
-  // Expiration Time
-  exp: number;
-
-  // First Name
-  given_name?: string;
-
-  // Last Name
-  family_name?: string | undefined;
-
-  // Full Name
-  name?: string;
-
-  // Profile Picture
-  picture?: string| undefined;
+  iss: string;  // Issuer
+  sub: string;  // Subject (user id)
+  aud: string;  // Audience (client id)
+  email: string;  // User Email
+  email_verified: string;  // Email Verification Status
+  iat: number;  // Issued At
+  exp: number;  // Expiration Time
+  given_name?: string;  // First Name
+  family_name?: string | undefined;  // Last Name
+  name?: string; // Full Name
+  picture?: string | undefined; // Profile Picture
 }

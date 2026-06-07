@@ -1,199 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dark Signup Form</title>
 
   <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
 
-    body{
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      background:#0f172a;
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0f172a;
     }
 
-    .signup-container{
-      width:420px;
-      background:#1e293b;
-      padding:35px;
-      border-radius:14px;
-      box-shadow:0 0 25px rgba(0,0,0,0.5);
-      border:1px solid #334155;
+    .signup-container {
+      width: 420px;
+      background: #1e293b;
+      padding: 35px;
+      border-radius: 14px;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+      border: 1px solid #334155;
     }
 
-    .signup-container h2{
-      text-align:center;
-      margin-bottom:25px;
-      color:#f8fafc;
-      font-size:28px;
+    .signup-container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #f8fafc;
+      font-size: 28px;
     }
 
-    .form-group{
-      margin-bottom:18px;
+    .form-group {
+      margin-bottom: 18px;
     }
 
-    .form-group label{
-      display:block;
-      margin-bottom:8px;
-      color:#cbd5e1;
-      font-size:14px;
-      font-weight:600;
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 600;
     }
 
-    .form-group input{
-      width:100%;
-      padding:12px;
-      border:1px solid #475569;
-      border-radius:8px;
-      background:#0f172a;
-      color:#f8fafc;
-      font-size:14px;
-      transition:0.3s;
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-size: 14px;
+      transition: 0.3s;
     }
 
-    .form-group input::placeholder{
-      color:#94a3b8;
+    .form-group input::placeholder {
+      color: #94a3b8;
     }
 
-    .form-group input:focus{
-      outline:none;
-      border-color:#3b82f6;
-      box-shadow:0 0 8px rgba(59,130,246,0.4);
+    .form-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
     }
 
-    .checkbox-group{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:22px;
-      color:#cbd5e1;
-      font-size:14px;
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      color: #cbd5e1;
+      font-size: 14px;
     }
 
-    .checkbox-group input{
-      accent-color:#3b82f6;
+    .checkbox-group input {
+      accent-color: #3b82f6;
     }
 
-    .signup-btn{
-      width:100%;
-      padding:13px;
-      border:none;
-      border-radius:8px;
-      background:#3b82f6;
-      color:white;
-      font-size:16px;
-      font-weight:bold;
-      cursor:pointer;
-      transition:0.3s;
+    .signup-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: #3b82f6;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
     }
 
-    .signup-btn:hover{
-      background:#2563eb;
-      transform:translateY(-1px);
+    .signup-btn:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
     }
 
-    .footer-text{
-      text-align:center;
-      margin-top:18px;
-      color:#94a3b8;
-      font-size:14px;
+    .footer-text {
+      text-align: center;
+      margin-top: 18px;
+      color: #94a3b8;
+      font-size: 14px;
     }
 
-    .footer-text a{
-      color:#60a5fa;
-      text-decoration:none;
+    .footer-text a {
+      color: #60a5fa;
+      text-decoration: none;
     }
 
-    .footer-text a:hover{
-      text-decoration:underline;
+    .footer-text a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
 
   <div class="signup-container">
     <h2>Create Account</h2>
 
-    <form action="/signup" method="POST">
-
+    <form  action="/signup" method="POST">
       <!-- First Name -->
       <div class="form-group">
         <label for="firstName">First Name</label>
-        <input 
-          type="text" 
-          id="firstName" 
-          name="firstName"
-          maxlength="25"
-          placeholder="Enter first name"
-          required
-        >
+        <input type="text" id="firstName" name="firstName" maxlength="25" placeholder="Enter first name" required>
       </div>
 
       <!-- Last Name -->
       <div class="form-group">
         <label for="lastName">Last Name</label>
-        <input 
-          type="text" 
-          id="lastName" 
-          name="lastName"
-          maxlength="25"
-          placeholder="Enter last name"
-          required
-        >
+        <input type="text" id="lastName" name="lastName" maxlength="25" placeholder="Enter last name" required>
       </div>
 
-      
+
 
       <!-- Email -->
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input 
-          type="email" 
-          id="email" 
-          name="email"
-          maxlength="322"
-          placeholder="Enter your email"
-          required
-        >
+        <input type="email" id="email" name="email" maxlength="322" placeholder="Enter your email" required>
       </div>
 
       <!-- Password -->
       <div class="form-group">
         <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          name="password"
-          minlength="6"
-          placeholder="Enter password"
-          required
-        >
+        <input type="password" id="password" name="password" minlength="6" placeholder="Enter password" required>
       </div>
 
       <!-- Confirm Password -->
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
-        <input 
-          type="password" 
-          id="confirmPassword" 
-          name="confirmPassword"
-          placeholder="Confirm password"
-          required
-        >
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
       </div>
 
+      <input type="hidden" name="client_id" id="client_id" />
+
+      <input type="hidden" name="redirect_uri" id="redirect_uri" />
+
+      <input type="hidden" name="state" id="state" />
       <!-- Email Verified -->
-     
-      <button type="submit" class="signup-btn">
+
+      <button type="submit" class="signup-btn" id="signupBtn">
         Sign Up
       </button>
 
@@ -205,6 +177,15 @@
     </div>
 
   </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
 
+    document.getElementById("client_id").value = params.get("client_id");
+
+    document.getElementById("redirect_uri").value = params.get("redirect_uri");
+
+    document.getElementById("state").value = params.get("state");
+  </script>
 </body>
+
 </html>
